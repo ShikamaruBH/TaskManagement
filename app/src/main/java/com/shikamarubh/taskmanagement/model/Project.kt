@@ -8,7 +8,8 @@ import java.util.*
 data class Project(
     @PrimaryKey
     val id: UUID = UUID.randomUUID(),
-    val content: String,
-    val status: Status,
-    val is_important: Boolean,
+    val title: String,
+    val description: String,
+    val isArchived: Boolean,
+    val isDeleted: Boolean,
 )

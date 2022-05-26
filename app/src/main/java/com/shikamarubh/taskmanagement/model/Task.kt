@@ -8,9 +8,8 @@ import java.util.*
 data class Task(
     @PrimaryKey
     val id: UUID = UUID.randomUUID(),
-    val title: String,
-    val description: String,
-    val isArchived: Boolean,
-    val isDeleted: Boolean,
+    val content: String,
+    val status: Status,
+    val isImportant: Boolean,
     val projectId: UUID,
 )
