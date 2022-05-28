@@ -3,23 +3,17 @@ package com.shikamarubh.taskmanagement
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
+
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,7 +34,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    MainScreen()
                 }
             }
         }
@@ -49,7 +43,6 @@ class MainActivity : ComponentActivity() {
 
 
 //Màn hình chính
-@Preview
 @Composable
 fun MainScreen(){
     Scaffold(
@@ -73,7 +66,9 @@ fun MainScreen(){
                     .padding(vertical = 20.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically){
-                    ButtonAddProject()
+                    ButtonAddProject(
+
+                    )
                 }
             }
         },
@@ -83,7 +78,6 @@ fun MainScreen(){
 
 
 //Màn hình Task
-@Preview
 @Composable
 fun TaskScreen(){
     Scaffold(
@@ -126,7 +120,6 @@ fun TaskScreen(){
 }
 
 //Màn hình Archive
-@Preview
 @Composable
 fun ArchiveScreen(){
     Scaffold(
@@ -151,7 +144,6 @@ fun ArchiveScreen(){
 }
 
 //Màn hình thùng rác
-@Preview
 @Composable
 fun TrashScreen(){
     val state = rememberScaffoldState()
@@ -218,6 +210,103 @@ fun CardProject() {
     }
 }
 
+//Card đồng ý xoá hay không
+@Composable
+fun CardConfirmDelete() {
+    val paddingModifier = Modifier.padding(5.dp)
+    val expanded = remember { mutableStateOf(false)}
+    Card(
+        elevation = 10.dp,
+        shape = RoundedCornerShape(14),
+        modifier = paddingModifier,
+        backgroundColor = Color(251, 249, 245),
+    ) {
+        Row(modifier = Modifier
+            .padding(vertical = 20.dp, horizontal = 50.dp)
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically){
+            ButtonConfirmDeleteAllProject()
+            ButtonDeclineDeleteAllProject()
+        }
+    }
+}
+
+//Card chuyển task sang TO-DO / DONE / DOING
+@Composable
+fun CardTransfer() {
+    val paddingModifier = Modifier.padding(5.dp)
+    val expanded = remember { mutableStateOf(false)}
+    Card(
+        elevation = 10.dp,
+        shape = RoundedCornerShape(14),
+        modifier = paddingModifier,
+        backgroundColor = Color(251, 249, 245),
+    ) {
+        Row(modifier = Modifier
+            .padding(vertical = 20.dp, horizontal = 20.dp)
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically){
+            ButtonToDoTransfer()
+            ButtonDoingTransfer()
+            ButtonDoneTransfer()
+        }
+    }
+}
+
+//Text-field Project
+@Composable
+fun TextFieldProject() {
+    Card(
+        backgroundColor = Color(251, 249, 245),
+    ) {
+        Column(
+            modifier = Modifier.padding(50.dp),
+        ){
+            var textName by remember { mutableStateOf(" ") }
+            OutlinedTextField(
+                modifier = Modifier.padding(vertical = 20.dp),
+                value = textName,
+                onValueChange = { textName = it },
+                label = { Text("Name Project", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
+            )
+
+            var textDescription by remember { mutableStateOf(" ") }
+            OutlinedTextField(
+                modifier = Modifier.padding(vertical = 20.dp),
+                value = textDescription,
+                onValueChange = { textDescription = it },
+                label = { Text("Description Project", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
+            )
+            ButtonAddProject()
+        }
+    }
+}
+
+//Text-field Task
+@Composable
+fun TextFieldTask() {
+    Card(
+        backgroundColor = Color(251, 249, 245),
+    ) {
+        Column(
+            modifier = Modifier.padding(50.dp),
+        ){
+            var textTask by remember { mutableStateOf(" ") }
+            OutlinedTextField(
+                modifier = Modifier.padding(vertical = 20.dp),
+                value = textTask,
+                onValueChange = { textTask = it },
+                label = { Text("Name Task", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
+            )
+            ButtonAddTask()
+        }
+    }
+}
+
+///////////////////////////Ở DƯỚI KHÔNG CẦN ĐỌC///////////////////////////////////////
+
 //Thanh top menu
 @Composable
 fun TopAppBar() {
@@ -271,6 +360,22 @@ fun ButtonToDoChecked() {
     }
 }
 
+//Button To-do in Card Transfer
+@Composable
+fun ButtonToDoTransfer() {
+    val paddingModifier = Modifier.padding(10.dp)
+    val expanded = remember { mutableStateOf(false)}
+    Card(
+        elevation = 10.dp,
+        shape = RoundedCornerShape(50),
+        backgroundColor = Color(125, 117, 109)
+    ) {
+        Row(modifier = paddingModifier) {
+            Text(text = "TO-DO ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+        }
+    }
+}
+
 //Button Doing
 @Composable
 fun ButtonDoing() {
@@ -302,6 +407,22 @@ fun ButtonDoingChecked() {
         Row(modifier = paddingModifier) {
             Text(text = "DOING ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
             Text(text = " 24", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+        }
+    }
+}
+
+//Button Doing in Card Transfer
+@Composable
+fun ButtonDoingTransfer() {
+    val paddingModifier = Modifier.padding(10.dp)
+    val expanded = remember { mutableStateOf(false)}
+    Card(
+        elevation = 10.dp,
+        shape = RoundedCornerShape(50),
+        backgroundColor = Color(245, 160, 62)
+    ) {
+        Row(modifier = paddingModifier) {
+            Text(text = "DOING ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
         }
     }
 }
@@ -341,6 +462,22 @@ fun ButtonDoneChecked() {
     }
 }
 
+//Button Done in Card Transfer
+@Composable
+fun ButtonDoneTransfer() {
+    val paddingModifier = Modifier.padding(10.dp)
+    val expanded = remember { mutableStateOf(false)}
+    Card(
+        elevation = 10.dp,
+        shape = RoundedCornerShape(50),
+        backgroundColor = Color(139, 192, 106)
+    ) {
+        Row(modifier = paddingModifier) {
+            Text(text = "DONE ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+        }
+    }
+}
+
 //Nút thêm dự án
 @Composable
 fun ButtonAddProject() {
@@ -365,6 +502,22 @@ fun ButtonDeleteAllProject() {
     Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(245, 62, 62))) {
         Text("-", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
         Text(text = " DELETE ALL",color=Color.White)
+    }
+}
+
+//Nút không đồng ý xoá dự án trong thùng rác
+@Composable
+fun ButtonDeclineDeleteAllProject() {
+    Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(245, 62, 62))) {
+        Text(text = "DECLINE",color=Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+//Nút đồng ý xoá dự án trong thùng rác
+@Composable
+fun ButtonConfirmDeleteAllProject() {
+    Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(192,192,192))) {
+        Text(text = "CONFIRM",color=Color.White, fontWeight = FontWeight.Bold)
     }
 }
 
