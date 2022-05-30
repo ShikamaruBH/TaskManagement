@@ -19,7 +19,6 @@ object AppModule {
     @Provides
     fun provideTasksDao(taskManagementDatabase: TaskManagementDatabase):TaskDao=taskManagementDatabase.taskDao()
 
-
     @Singleton
     @Provides
     fun provideProjectDao(taskManagementDatabase: TaskManagementDatabase) : ProjectDao
