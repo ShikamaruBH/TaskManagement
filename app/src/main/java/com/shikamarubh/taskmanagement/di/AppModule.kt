@@ -2,6 +2,7 @@ package com.shikamarubh.taskmanagement.di
 
 import android.content.Context
 import androidx.room.Room
+import com.shikamarubh.taskmanagement.data.ProjectDao
 import com.shikamarubh.taskmanagement.data.TaskDao
 import com.shikamarubh.taskmanagement.data.TaskManagementDatabase
 import dagger.Module
@@ -17,6 +18,12 @@ object AppModule {
     @Singleton
     @Provides
     fun provideTasksDao(taskManagementDatabase: TaskManagementDatabase):TaskDao=taskManagementDatabase.taskDao()
+
+
+    @Singleton
+    @Provides
+    fun provideProjectDao(taskManagementDatabase: TaskManagementDatabase) : ProjectDao
+        = taskManagementDatabase.projectDao()
 
     @Singleton
     @Provides
