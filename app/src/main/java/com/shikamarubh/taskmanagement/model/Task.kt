@@ -11,7 +11,7 @@ data class Task(
     @PrimaryKey
     val id: UUID = UUID.randomUUID(),
     var content: String,
-    val status: Status,
-    val isImportant: Boolean,
+    var status: Status,
+    var isImportant: Boolean,
     val projectId: UUID,
 )
