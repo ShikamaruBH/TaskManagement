@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
 
 
 //Màn hình chính
+@Preview
 @Composable
 fun MainScreen(){
     Scaffold(
@@ -50,26 +51,33 @@ fun MainScreen(){
         content = {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween,
+//                verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally) {
 
                 Row(modifier = Modifier
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically){
+                    .fillMaxWidth()
+                    .height(250.dp),
+                    horizontalArrangement = Arrangement.Center
+                ){
                     CardProject()
                     CardProject()
                 }
 
-                Row(modifier = Modifier
+                Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 20.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically){
-                    ButtonAddProject(
-
-                    )
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom){
+                    TextFieldProject()
                 }
+
+//                Row(modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(vertical = 20.dp),
+//                    horizontalArrangement = Arrangement.Center,
+//                    verticalAlignment = Alignment.CenterVertically){
+//                    ButtonAddProject()
+//                }
             }
         },
         backgroundColor = Color(251, 249, 245),
@@ -79,6 +87,7 @@ fun MainScreen(){
 
 //Màn hình Task
 @Composable
+@Preview
 fun TaskScreen(){
     Scaffold(
         topBar = { TopAppBar() },
@@ -196,7 +205,7 @@ fun CardTask() {
 //Card dự án
 @Composable
 fun CardProject() {
-    val paddingModifier = Modifier.padding(17.dp)
+    val paddingModifier = Modifier.padding(10.dp)
     val expanded = remember { mutableStateOf(false)}
     Card(
         elevation = 10.dp,
@@ -262,11 +271,12 @@ fun TextFieldProject() {
         backgroundColor = Color(251, 249, 245),
     ) {
         Column(
-            modifier = Modifier.padding(50.dp),
+            modifier = Modifier.padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ){
             var textName by remember { mutableStateOf(" ") }
             OutlinedTextField(
-                modifier = Modifier.padding(vertical = 20.dp),
+                modifier = Modifier.padding(vertical = 10.dp),
                 value = textName,
                 onValueChange = { textName = it },
                 label = { Text("Name Project", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
@@ -274,7 +284,7 @@ fun TextFieldProject() {
 
             var textDescription by remember { mutableStateOf(" ") }
             OutlinedTextField(
-                modifier = Modifier.padding(vertical = 20.dp),
+                modifier = Modifier.padding(vertical = 10.dp),
                 value = textDescription,
                 onValueChange = { textDescription = it },
                 label = { Text("Description Project", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
@@ -483,7 +493,7 @@ fun ButtonDoneTransfer() {
 fun ButtonAddProject() {
     Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(98, 98, 246))) {
         Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
-        Text(text = " ADD PROJECT",color=Color.White)
+        Text(text = " ADD PROJECT",color=Color.Black)
     }
 }
 
