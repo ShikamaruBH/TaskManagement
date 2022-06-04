@@ -5,23 +5,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shikamarubh.taskmanagement.ui.theme.TaskManagementTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -29,192 +33,83 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TaskManagementTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                val navController = rememberNavController()
+                Scaffold(
+                    bottomBar = { BottomNavigation(navController = navController)}
                 ) {
-                    MainScreen()
+                    Navigation(navController = navController)
                 }
             }
         }
     }
 }
 
-
-//Màn hình chính
-@Preview
 @Composable
-fun MainScreen(){
-    Scaffold(
-        topBar = { TopAppBar() },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-//                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                    horizontalArrangement = Arrangement.Center
-                ){
-                    CardProject()
-                    CardProject()
-                }
-
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Bottom){
-                    TextFieldProject()
-                }
-
-//                Row(modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(vertical = 20.dp),
-//                    horizontalArrangement = Arrangement.Center,
-//                    verticalAlignment = Alignment.CenterVertically){
-//                    ButtonAddProject()
-//                }
-            }
-        },
-        backgroundColor = Color(251, 249, 245),
-    )
-}
-
-
-//Màn hình Task
-@Composable
-@Preview
-fun TaskScreen(){
-    Scaffold(
-        topBar = { TopAppBar() },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-
-                Column() {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically) {
-                        ButtonToDoChecked()
-                        ButtonDone()
-                        ButtonDoing()
-                    }
-
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically){
-                        CardTask()
-                    }
-                }
-
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically){
-                    ButtonAddTask()
-                }
-            }
-        },
-        backgroundColor = Color(251, 249, 245),
-    )
-}
-
-//Màn hình Archive
-@Composable
-fun ArchiveScreen(){
-    Scaffold(
-        topBar = { TopAppBar() },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-
-                Row(modifier = Modifier
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically){
-                    CardProject()
-                }
-
-            }
-        },
-        backgroundColor = Color(251, 249, 245),
-    )
-}
-
-//Màn hình thùng rác
-@Composable
-fun TrashScreen(){
-    val state = rememberScaffoldState()
-    Scaffold(
-        scaffoldState = state,
-        topBar = { TopAppBar() },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-
-                Row(modifier = Modifier
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically){
-                    CardProject()
-                    CardProject()
-                }
-
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically){
-                    ButtonDeleteAllProject()
-                }
-            }
-        },
-        backgroundColor = Color(251, 249, 245),
-    )
-}
-
-//Card task
-@Composable
-fun CardTask() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(50),
-        modifier = paddingModifier,
-    ) {
-        Column(modifier = paddingModifier) {
-            Text(text = "Crawl dữ liệu", fontSize = 10.sp, fontWeight = FontWeight.Bold,color=Color.Black)
+fun Navigation(navController: NavHostController){
+    NavHost(navController = navController,
+        startDestination = NavigationItem.AddProject.route){
+        composable(NavigationItem.AddProject.route){
+            ProjectScreen()
+        }
+        composable(NavigationItem.ToDo.route){
+            ToDoScreen()
+        }
+        composable(NavigationItem.Doing.route){
+            DoingScreen()
+        }
+        composable(NavigationItem.Done.route){
+            DoneScreen()
+        }
+        composable(NavigationItem.Archive.route){
+            ArchiveScreen()
+        }
+        composable(NavigationItem.Trash.route){
+            TrashScreen()
         }
     }
 }
 
-//Card dự án
 @Composable
-fun CardProject() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(14),
-        modifier = paddingModifier,
+fun  BottomNavigation(navController: NavHostController){
+    var items = listOf(
+        NavigationItem.AddProject,
+        NavigationItem.ToDo,
+        NavigationItem.Doing,
+        NavigationItem.Done,
+        NavigationItem.Archive,
+        NavigationItem.Trash,
+    )
+
+    androidx.compose.material.BottomNavigation(
+        backgroundColor = colorResource(id = R.color.colorPrimaryDark),
+        contentColor = Color.Black
     ) {
-        Column(modifier = paddingModifier) {
-            Text(text = "Khoa học dữ liệu", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold,color=Color.Black)
-            Text(text = "Chạy Deadline nè !", fontSize = 12.sp, fontWeight = FontWeight.Light,color=Color.Black)
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
+        items.forEach{
+                item ->
+            BottomNavigationItem(
+                selected = currentRoute == item.route,
+                onClick = {
+                    navController.navigate(item.route){
+                        navController.graph.startDestinationRoute?.let{
+                                route -> popUpTo(route){
+                            saveState = true
+                        }
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                icon = {Icon(
+                    painter = painterResource(id = item.icon),
+                    contentDescription = item.title)},
+                label = { Text(text = item.title)},
+                selectedContentColor = Color.Black,
+                unselectedContentColor = Color.Black.copy(0.4f),
+                alwaysShowLabel = true
+            )
         }
     }
 }
@@ -264,32 +159,19 @@ fun CardTransfer() {
     }
 }
 
-//Text-field Project
+//Card dự án
 @Composable
-fun TextFieldProject() {
+fun CardProject() {
+    val paddingModifier = Modifier.padding(10.dp)
+    val expanded = remember { mutableStateOf(false)}
     Card(
-        backgroundColor = Color(251, 249, 245),
+        elevation = 10.dp,
+        shape = RoundedCornerShape(14),
+        modifier = paddingModifier,
     ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            var textName by remember { mutableStateOf(" ") }
-            OutlinedTextField(
-                modifier = Modifier.padding(vertical = 10.dp),
-                value = textName,
-                onValueChange = { textName = it },
-                label = { Text("Name Project", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
-            )
-
-            var textDescription by remember { mutableStateOf(" ") }
-            OutlinedTextField(
-                modifier = Modifier.padding(vertical = 10.dp),
-                value = textDescription,
-                onValueChange = { textDescription = it },
-                label = { Text("Description Project", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
-            )
-            ButtonAddProject()
+        Column(modifier = paddingModifier) {
+            Text(text = "Khoa học dữ liệu", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold,color=Color.Black)
+            Text(text = "Chạy Deadline nè !", fontSize = 12.sp, fontWeight = FontWeight.Light,color=Color.Black)
         }
     }
 }
