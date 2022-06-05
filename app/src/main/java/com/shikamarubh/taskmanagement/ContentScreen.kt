@@ -1,36 +1,19 @@
 package com.shikamarubh.taskmanagement
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.floor
+import androidx.fragment.app.FragmentTransaction
 
 
 //Project
@@ -44,7 +27,6 @@ fun ProjectScreen() {
             .fillMaxSize()
             .fillMaxHeight(),
     ) {
-        CardProject()
         Card(
             backgroundColor = Color(251, 249, 245),
         ) {
@@ -83,9 +65,11 @@ fun ProjectScreen() {
                 )
                 Button(onClick = {
                     status.value = !status.value
-                }, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(98, 98, 246))) {
-                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
-                    Text(text = " ADD PROJECT",color=Color.Black)
+                },  colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier.padding(14.dp))  {
+                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+                    Text(text = " ADD PROJECT", fontSize = 18.sp,fontWeight = FontWeight.ExtraBold,color=Color.White)
                 }
                 if (status.value)
                     CardProject(data = listOf("Python","Data Science","Java spring"))
@@ -122,11 +106,13 @@ fun ToDoScreen() {
 
                 Button(onClick = {
                     status.value = !status.value
-                }, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(98, 98, 246))) {
-                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
-                    Text(text = " ADD TASK",color=Color.Black)
+                },  colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier.padding(14.dp))  {
+                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+                    Text(text = " ADD TASK", fontSize = 18.sp,fontWeight = FontWeight.ExtraBold,color=Color.White)
                 }
-                CardTask(data = listOf("Crawl dữ liệu","Tạo đặc trưng mới","Đánh giá mô hình"))
+                CardTask(data = listOf("Crawl dữ liệu","Tạo đặc trưng mới","Đánh giá mô hình"),1)
             }
         }
     }
@@ -150,7 +136,7 @@ fun DoneScreen() {
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CardTask(data = listOf("Tạo file js","Reset css","Gắn link html"))
+                CardTask(data = listOf("Tạo file js","Reset css","Gắn link html"),1)
             }
         }
     }
@@ -174,7 +160,7 @@ fun DoingScreen() {
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CardTask(data = listOf("Đi ngủ","Ăn cơm","Tắm rửa"))
+                CardTask(data = listOf("Đi ngủ","Ăn cơm","Tắm rửa"),1)
             }
         }
     }
@@ -191,7 +177,6 @@ fun ArchiveScreen() {
             .fillMaxSize()
             .fillMaxHeight(),
     ) {
-        CardProject()
         Card(
             backgroundColor = Color(251, 249, 245),
         ) {
@@ -199,7 +184,7 @@ fun ArchiveScreen() {
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CardTask(data = listOf("Python","Data Science","Java spring"))
+                CardTask(data = listOf("Python","Data Science","Java spring"),2)
             }
         }
     }
@@ -224,17 +209,16 @@ fun TrashScreen() {
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CardTask(data = listOf("Python","Data Science","Java spring"))
+                CardTask(data = listOf("Python","Data Science","Java spring"),3)
                 Button(onClick = {
                     status.value = !status.value
                 }, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(245, 62, 62))) {
-                    Text("-", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
-                    Text(text = " DELETE ALL",color=Color.White)
+                    Text("-", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+                    Text(text = " DELETE ALL", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
                 }
                 if (status.value)
                     Row(modifier = Modifier
-                        .padding(vertical = 20.dp, horizontal = 50.dp)
-                        .fillMaxWidth(),
+                        .padding(vertical = 20.dp, horizontal = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically){
                         ButtonConfirmDeleteAllProject()
@@ -247,49 +231,84 @@ fun TrashScreen() {
 
 @Composable
 fun CardProject(data: List<String>){
-    LazyColumn{
+    LazyRow{
         items(data){
                 item ->
-            Card(
-                modifier = Modifier
-                    .padding(13.dp)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(14),
-                elevation = 4.dp
-            ) {
+                Button(onClick = { /*TODO*/ },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    shape = RoundedCornerShape(14),
+                    modifier = Modifier.padding(14.dp)) {
                     Column(
-                        modifier = Modifier
-                            .padding(14.dp)
                     ) {
                         Text(text = item, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.Black)
                         Text(text = "Chạy Deadline nè !", fontSize = 14.sp, fontWeight = FontWeight.Light,color=Color.Black)
                     }
-            }
+                }
         }
     }
 }
 
+//Dialog in TO-DO / DONE / DOING screen
+@Composable
+fun DialogInAllTaskScreen() {
+            Row(modifier = Modifier
+            .padding(vertical = 20.dp, horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically){
+            ButtonToDoTransfer()
+            ButtonDoingTransfer()
+            ButtonDoneTransfer()
+        }
+}
+
+//Dialog in Archive Screen
+@Composable
+fun DialogInArchiveScreen() {
+    Row(modifier = Modifier
+        .padding(vertical = 20.dp, horizontal = 20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically){
+        ButtonUnarchive()
+        ButtonDelete()
+    }
+}
+
+////Dialog in Trash Screen
+@Composable
+fun DialogInTrashScreen() {
+    Row(modifier = Modifier
+        .padding(vertical = 20.dp, horizontal = 20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically){
+        ButtonDelete()
+    }
+}
 
 //Card task
 @Composable
-fun CardTask(data: List<String>) {
-    LazyColumn{
+fun CardTask(data: List<String>, index: Int) {
+    val status = remember {
+        mutableStateOf(false)
+    }
+
+    LazyRow{
         items(data){
                 item ->
-            Card(
-                modifier = Modifier
-                    .padding(13.dp)
-                    .fillMaxWidth(),
+            Button(onClick = {status.value = !status.value},
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
                 shape = RoundedCornerShape(14),
-                elevation = 4.dp
-            ) {
+                modifier = Modifier.padding(14.dp)) {
                 Column(
-                    modifier = Modifier
-                        .padding(10.dp)
                 ) {
-                    Text(text = item, fontSize = 16.sp, fontWeight = FontWeight.Bold,color=Color.Black)
+                    Text(text = item, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.Black)
                 }
             }
         }
     }
+    if (status.value && index == 1)
+        DialogInAllTaskScreen()
+    else if(status.value && index == 2)
+        DialogInArchiveScreen()
+    else if(status.value && index == 3)
+        DialogInTrashScreen()
 }

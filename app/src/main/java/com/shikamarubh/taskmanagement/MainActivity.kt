@@ -1,10 +1,13 @@
 package com.shikamarubh.taskmanagement
 
 import android.os.Bundle
+import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -26,6 +29,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import java.lang.Exception
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -35,6 +39,7 @@ class MainActivity : ComponentActivity() {
             TaskManagementTheme {
                 val navController = rememberNavController()
                 Scaffold(
+                    topBar = { TopAppBar()},
                     bottomBar = { BottomNavigation(navController = navController)}
                 ) {
                     Navigation(navController = navController)
@@ -114,50 +119,7 @@ fun  BottomNavigation(navController: NavHostController){
     }
 }
 
-//Card đồng ý xoá hay không
-@Composable
-fun CardConfirmDelete() {
-    val paddingModifier = Modifier.padding(5.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(14),
-        modifier = paddingModifier,
-        backgroundColor = Color(251, 249, 245),
-    ) {
-        Row(modifier = Modifier
-            .padding(vertical = 20.dp, horizontal = 50.dp)
-            .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically){
-            ButtonConfirmDeleteAllProject()
-            ButtonDeclineDeleteAllProject()
-        }
-    }
-}
 
-//Card chuyển task sang TO-DO / DONE / DOING
-@Composable
-fun CardTransfer() {
-    val paddingModifier = Modifier.padding(5.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(14),
-        modifier = paddingModifier,
-        backgroundColor = Color(251, 249, 245),
-    ) {
-        Row(modifier = Modifier
-            .padding(vertical = 20.dp, horizontal = 20.dp)
-            .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically){
-            ButtonToDoTransfer()
-            ButtonDoingTransfer()
-            ButtonDoneTransfer()
-        }
-    }
-}
 
 //Card dự án
 @Composable
@@ -175,241 +137,115 @@ fun CardProject() {
         }
     }
 }
-
-//Text-field Task
-@Composable
-fun TextFieldTask() {
-    Card(
-        backgroundColor = Color(251, 249, 245),
-    ) {
-        Column(
-            modifier = Modifier.padding(50.dp),
-        ){
-            var textTask by remember { mutableStateOf(" ") }
-            OutlinedTextField(
-                modifier = Modifier.padding(vertical = 20.dp),
-                value = textTask,
-                onValueChange = { textTask = it },
-                label = { Text("Name Task", fontSize = 14.sp, fontWeight = FontWeight.Bold,color=Color.Black) }
-            )
-            ButtonAddTask()
-        }
-    }
-}
-
 ///////////////////////////Ở DƯỚI KHÔNG CẦN ĐỌC///////////////////////////////////////
 
 //Thanh top menu
 @Composable
 fun TopAppBar() {
     TopAppBar(
-        title = { Text(text = "Task Manager App", fontWeight = FontWeight.Bold, color = Color(125, 118, 102)) },
-        backgroundColor = Color(255, 255, 255),
-        navigationIcon = {
-            IconButton(onClick = { /*TODO*/
-            }) {
-                Icon(
-                    Icons.Filled.Menu,
-                    contentDescription = "Localized description",
-                )
-            }
-        }
+        title = { Text(text = "Task Manager App", fontWeight = FontWeight.Bold, color = colorResource(id = R.color.colorTodo)) },
+        backgroundColor = colorResource(id = R.color.colorPrimary),
     )
-}
-
-//Button To-do
-@Composable
-fun ButtonToDo() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(50),
-        backgroundColor = Color(125, 117, 109)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "TO-DO ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-            Text(text = " 24", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
-    }
-}
-
-//Button To-do Checked
-@Composable
-fun ButtonToDoChecked() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(50),
-        modifier = paddingModifier.border(3.dp, Color(146, 180, 236),shape= RoundedCornerShape(50)),
-        backgroundColor = Color(125, 117, 109)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "TO-DO ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-            Text(text = " 24", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
-    }
 }
 
 //Button To-do in Card Transfer
 @Composable
 fun ButtonToDoTransfer() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorTodo)),
         shape = RoundedCornerShape(50),
-        backgroundColor = Color(125, 117, 109)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "TO-DO ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
-    }
-}
-
-//Button Doing
-@Composable
-fun ButtonDoing() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(50),
-        backgroundColor = Color(245, 160, 62)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "DOING ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-            Text(text = " 24", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
-    }
-}
-
-//Button Doing Checked
-@Composable
-fun ButtonDoingChecked() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(50),
-        modifier = paddingModifier.border(3.dp, Color(146, 180, 236),shape= RoundedCornerShape(50)),
-        backgroundColor = Color(245, 160, 62)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "DOING ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-            Text(text = " 24", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
+        modifier = Modifier.padding(14.dp)) {
+        Text(text = "TO-DO", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
     }
 }
 
 //Button Doing in Card Transfer
 @Composable
 fun ButtonDoingTransfer() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDoing)),
         shape = RoundedCornerShape(50),
-        backgroundColor = Color(245, 160, 62)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "DOING ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
-    }
-}
-
-//Button Done
-@Composable
-fun ButtonDone() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(50),
-        backgroundColor = Color(139, 192, 106)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "DONE ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-            Text(text = " 24", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
-    }
-}
-
-//Button Done Checked
-@Composable
-fun ButtonDoneChecked() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(50),
-        modifier = paddingModifier.border(3.dp, Color(146, 180, 236),shape= RoundedCornerShape(50)),
-        backgroundColor = Color(139, 192, 106)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "DONE ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-            Text(text = " 24", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
+        modifier = Modifier.padding(14.dp)) {
+        Text(text = "DOING", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
     }
 }
 
 //Button Done in Card Transfer
 @Composable
 fun ButtonDoneTransfer() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false)}
-    Card(
-        elevation = 10.dp,
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDone)),
         shape = RoundedCornerShape(50),
-        backgroundColor = Color(139, 192, 106)
-    ) {
-        Row(modifier = paddingModifier) {
-            Text(text = "DONE ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
-        }
+        modifier = Modifier.padding(14.dp)) {
+        Text(text = "DONE", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+    }
+}
+
+//Button Unarchive in Card Transfer
+@Composable
+fun ButtonUnarchive() {
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.padding(14.dp)) {
+        Text(text = "UNARCHIVE", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+    }
+}
+
+//Button Delete in Card Transfer
+@Composable
+fun ButtonDelete() {
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDecline)),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.padding(14.dp)) {
+        Text(text = "DELETE", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
     }
 }
 
 //Nút thêm dự án
 @Composable
 fun ButtonAddProject() {
-    Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(98, 98, 246))) {
-        Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
-        Text(text = " ADD PROJECT",color=Color.Black)
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.padding(14.dp)) {
+        Text("+", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+        Text(text = " ADD PROJECT", fontSize = 18.sp,fontWeight = FontWeight.ExtraBold,color=Color.White)
     }
 }
 
 //Nút thêm task
 @Composable
 fun ButtonAddTask() {
-    Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(98, 98, 246))) {
-        Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
-        Text(text = " ADD TASK",color=Color.White)
-    }
-}
-
-//Nút xoá dự án trong thùng rác
-@Composable
-fun ButtonDeleteAllProject() {
-    Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(245, 62, 62))) {
-        Text("-", fontSize = 18.sp, fontWeight = FontWeight.Bold,color=Color.White)
-        Text(text = " DELETE ALL",color=Color.White)
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.padding(14.dp)) {
+        Text("+", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
+        Text(text = " ADD TASK", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
     }
 }
 
 //Nút không đồng ý xoá dự án trong thùng rác
 @Composable
 fun ButtonDeclineDeleteAllProject() {
-    Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(245, 62, 62))) {
-        Text(text = "DECLINE",color=Color.White, fontWeight = FontWeight.Bold)
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDecline)),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.padding(14.dp)) {
+        Text(text = "DECLINE", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
     }
 }
 
 //Nút đồng ý xoá dự án trong thùng rác
 @Composable
 fun ButtonConfirmDeleteAllProject() {
-    Button(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Color(192,192,192))) {
-        Text(text = "CONFIRM",color=Color.White, fontWeight = FontWeight.Bold)
+    Button(onClick = {},
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorConfirm)),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.padding(14.dp)) {
+        Text(text = "CONFIRM", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,color=Color.White)
     }
 }
 
