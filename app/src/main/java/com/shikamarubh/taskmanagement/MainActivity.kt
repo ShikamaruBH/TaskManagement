@@ -14,13 +14,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shikamarubh.taskmanagement.ui.theme.TaskManagementTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.shikamarubh.taskmanagement.viewmodel.ProjectViewModel
+import com.shikamarubh.taskmanagement.viewmodel.TaskViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -33,7 +38,9 @@ class MainActivity : ComponentActivity() {
                     topBar = { TopAppBar() },
                     bottomBar = { BottomNavigation(navController = navController) }
                 ) {
-                    Navigation(navController = navController)
+                    val projectViewModel = viewModel<ProjectViewModel>()
+                    val taskViewModel = viewModel<TaskViewModel>()
+                    Navigation(navController = navController, taskViewModel = taskViewModel, projectViewModel = projectViewModel)
                 }
             }
         }
@@ -41,28 +48,60 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController,taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel) {
     NavHost(
         navController = navController,
         startDestination = NavigationItem.AddProject.route
     ) {
         composable(NavigationItem.AddProject.route) {
-            ProjectScreen()
+            ProjectScreen(taskViewModel = taskViewModel,projectViewModel = projectViewModel,navController = navController)
         }
-        composable(NavigationItem.ToDo.route) {
-            ToDoScreen()
+        composable(
+            route = NavigationItem.ToDo.route + "/{id}",
+            arguments = listOf(
+                navArgument("id"){
+                    type = NavType.StringType
+                    defaultValue = "0"
+                    nullable = true
+                }
+            )
+
+        ) { entry ->
+            ToDoScreen(id = entry.arguments?.getString("id"),navController =  navController, taskViewModel = taskViewModel , projectViewModel = projectViewModel)
         }
-        composable(NavigationItem.Doing.route) {
-            DoingScreen()
+
+        composable(
+            route = NavigationItem.Doing.route + "/{id}",
+            arguments = listOf(
+                navArgument("id"){
+                    type = NavType.StringType
+                    defaultValue = "0"
+                    nullable = true
+                }
+            )
+
+        ) { entry ->
+            DoingScreen(id = entry.arguments?.getString("id"),navController =  navController, taskViewModel = taskViewModel , projectViewModel = projectViewModel)
         }
-        composable(NavigationItem.Done.route) {
-            DoneScreen()
+
+        composable(
+            route = NavigationItem.Done.route + "/{id}",
+            arguments = listOf(
+                navArgument("id"){
+                    type = NavType.StringType
+                    defaultValue = "0"
+                    nullable = true
+                }
+            )
+
+        ) { entry ->
+            DoneScreen(id = entry.arguments?.getString("id"),navController =  navController, taskViewModel = taskViewModel , projectViewModel = projectViewModel)
         }
         composable(NavigationItem.Archive.route) {
-            ArchiveScreen()
+            ArchiveScreen(taskViewModel = taskViewModel,projectViewModel = projectViewModel,navController = navController)
         }
         composable(NavigationItem.Trash.route) {
-            TrashScreen()
+            TrashScreen(taskViewModel = taskViewModel,projectViewModel = projectViewModel,navController = navController)
         }
     }
 }
@@ -71,9 +110,9 @@ fun Navigation(navController: NavHostController) {
 fun BottomNavigation(navController: NavHostController) {
     var items = listOf(
         NavigationItem.AddProject,
-        NavigationItem.ToDo,
-        NavigationItem.Doing,
-        NavigationItem.Done,
+//        NavigationItem.ToDo,
+//        NavigationItem.Doing,
+//        NavigationItem.Done,
         NavigationItem.Archive,
         NavigationItem.Trash,
     )
@@ -90,13 +129,13 @@ fun BottomNavigation(navController: NavHostController) {
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
-                        }
-                        launchSingleTop = true
-                        restoreState = true
+//                        navController.graph.startDestinationRoute?.let { route ->
+//                            popUpTo(route) {
+//                                saveState = true
+//                            }
+//                        }
+//                        launchSingleTop = true
+//                        restoreState = true
                     }
                 },
                 icon = {

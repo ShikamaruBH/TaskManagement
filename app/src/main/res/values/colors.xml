@@ -8,8 +8,8 @@
     <color name="colorTodo">#7D756D</color>
 
     <color name="colorAdd">#6262F6</color>
-    <color name="colorDecline">#F53E3E</color>
-    <color name="colorConfirm">#C0C0C0</color>
+    <color name="colorConfirm">#F53E3E</color>
+    <color name="colorDecline">#C0C0C0</color>
 
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

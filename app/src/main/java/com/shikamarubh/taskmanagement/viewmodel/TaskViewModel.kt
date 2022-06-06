@@ -106,4 +106,26 @@ class TaskViewModel @Inject constructor(private val taskRepository: TaskReposito
         }
         return tasks
     }
+
+    fun getToDoTasksByProjectId(id: UUID): MutableStateFlow<List<Task>>{
+        val tasks = MutableStateFlow<List<Task>>(emptyList())
+        viewModelScope.launch {
+            tasks.value = todoTaskList.value.filter { p -> p.projectId == id  }
+        }
+        return tasks
+    }
+    fun getDoingTasksByProjectId(id: UUID): MutableStateFlow<List<Task>>{
+        val tasks = MutableStateFlow<List<Task>>(emptyList())
+        viewModelScope.launch {
+            tasks.value = doingTaskList.value.filter { p -> p.projectId == id  }
+        }
+        return tasks
+    }
+    fun getDoneTasksByProjectId(id: UUID): MutableStateFlow<List<Task>>{
+        val tasks = MutableStateFlow<List<Task>>(emptyList())
+        viewModelScope.launch {
+            tasks.value = doneTaskList.value.filter { p -> p.projectId == id  }
+        }
+        return tasks
+    }
 }
