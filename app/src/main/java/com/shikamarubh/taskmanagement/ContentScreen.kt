@@ -1,6 +1,7 @@
 package com.shikamarubh.taskmanagement
 
 import android.annotation.SuppressLint
+import android.icu.text.Transliterator
 import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -30,30 +32,37 @@ import kotlin.math.log
 
 //**************ALL SCREENS**************
 @Composable
-fun ProjectScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel,navController: NavController) {
-
+fun ProjectScreen(
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel,
+    navController: NavController
+) {
 //    val projectViewModel = viewModel<ProjectViewModel>()
     val status = remember {
         mutableStateOf(false)
     }
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .fillMaxHeight(),
+//    Surface(
+//        modifier = Modifier
+//            .fillMaxHeight().fillMaxWidth(),
+//    ) {
+    Card(
+        backgroundColor = colorResource(id = R.color.colorPrimary),
     ) {
-        Card(
-            backgroundColor = Color(251, 249, 245),
+        Column(
+            modifier = Modifier
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
         ) {
-            Column(
-                modifier = Modifier.padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val listProject by projectViewModel.projectList.collectAsState()
-                CardProject(projectViewModel = projectViewModel, listProject =  listProject,navController = navController)
-                Divider(modifier = Modifier.padding(20.dp))
-                CallAlertDialog(1, "ADD PROJECT",taskViewModel,projectViewModel,null,navController)
-
-            }
+            val listProject by projectViewModel.projectList.collectAsState()
+            CardProject(
+                projectViewModel = projectViewModel,
+                listProject = listProject,
+                navController = navController
+            )
+            Divider(modifier = Modifier.padding(60.dp))
+            CallAlertDialog(1, "ADD PROJECT", taskViewModel, projectViewModel, null, navController)
+//            }
         }
     }
 }
@@ -62,47 +71,59 @@ fun ProjectScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewMode
 //
 @Composable
 @SuppressLint("StateFlowValueCalledInComposition")
-fun ToDoScreen(id: String?, navController: NavController , taskViewModel: TaskViewModel, projectViewModel: ProjectViewModel) {
+fun ToDoScreen(
+    id: String?,
+    navController: NavController,
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel
+) {
     val id = UUID.fromString(id)
     val status = remember {
         mutableStateOf(false)
     }
+    val allToDoTask = taskViewModel.getToDoTasksByProjectId(id).value
     Surface(
-
-        modifier = Modifier
-            .fillMaxSize()
-            .fillMaxHeight(),
+        modifier = Modifier.fillMaxSize(),
+        color = colorResource(id = R.color.colorPrimary),
     ) {
-
-        Card(
-            backgroundColor = colorResource(id = R.color.colorPrimary),
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                DialogInAllTaskScreen(id,navController,"TODO")
-                val allToDoTask = taskViewModel.getToDoTasksByProjectId(id).value
-                CardTask(listTask = allToDoTask, taskViewModel = taskViewModel,navController = navController)
-                CallAlertDialog(2, "ADD TODO TASK", taskViewModel, projectViewModel,id,navController)
-
-            }
+            DialogInAllTaskScreen(id, navController, "TODO")
+            CardTask(
+                listTask = allToDoTask,
+                taskViewModel = taskViewModel,
+                navController = navController
+            )
+            CallAlertDialog(
+                2,
+                "ADD TODO TASK",
+                taskViewModel,
+                projectViewModel,
+                id,
+                navController
+            )
         }
+
     }
 }
 
 //DoneScreen
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun DoneScreen(id: String?,taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel,navController: NavController) {
+fun DoneScreen(
+    id: String?,
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel,
+    navController: NavController
+) {
     val id = UUID.fromString(id)
     val status = remember {
         mutableStateOf(false)
     }
     Surface(
-
         modifier = Modifier
             .fillMaxSize()
             .fillMaxHeight(),
@@ -114,11 +135,21 @@ fun DoneScreen(id: String?,taskViewModel: TaskViewModel,projectViewModel: Projec
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                DialogInAllTaskScreen(id,navController,"DONE")
+                DialogInAllTaskScreen(id, navController, "DONE")
                 val allDoneTask = taskViewModel.getDoneTasksByProjectId(id).value
-                CardTask(listTask = allDoneTask, taskViewModel = taskViewModel,navController = navController)
-                CallAlertDialog(2, "ADD TODO TASK",taskViewModel,projectViewModel,id,navController)
-
+                CardTask(
+                    listTask = allDoneTask,
+                    taskViewModel = taskViewModel,
+                    navController = navController
+                )
+                CallAlertDialog(
+                    2,
+                    "ADD TODO TASK",
+                    taskViewModel,
+                    projectViewModel,
+                    id,
+                    navController
+                )
             }
         }
     }
@@ -127,13 +158,17 @@ fun DoneScreen(id: String?,taskViewModel: TaskViewModel,projectViewModel: Projec
 //DoingScreen
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun DoingScreen(id: String?,taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel,navController: NavController) {
+fun DoingScreen(
+    id: String?,
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel,
+    navController: NavController
+) {
     val id = UUID.fromString(id)
     val status = remember {
         mutableStateOf(false)
     }
     Surface(
-
         modifier = Modifier
             .fillMaxSize()
             .fillMaxHeight(),
@@ -145,11 +180,21 @@ fun DoingScreen(id: String?,taskViewModel: TaskViewModel,projectViewModel: Proje
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                DialogInAllTaskScreen(id,navController,"DOING")
+                DialogInAllTaskScreen(id, navController, "DOING")
                 val allDoingTask = taskViewModel.getDoingTasksByProjectId(id).value
-                CardTask(listTask = allDoingTask,taskViewModel = taskViewModel, navController = navController)
-                CallAlertDialog(2, "ADD TODO TASK", taskViewModel,projectViewModel,id,navController)
-
+                CardTask(
+                    listTask = allDoingTask,
+                    taskViewModel = taskViewModel,
+                    navController = navController
+                )
+                CallAlertDialog(
+                    2,
+                    "ADD TODO TASK",
+                    taskViewModel,
+                    projectViewModel,
+                    id,
+                    navController
+                )
             }
         }
     }
@@ -157,8 +202,11 @@ fun DoingScreen(id: String?,taskViewModel: TaskViewModel,projectViewModel: Proje
 
 //Archive
 @Composable
-fun ArchiveScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel, navController: NavController) {
-
+fun ArchiveScreen(
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel,
+    navController: NavController
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -178,13 +226,17 @@ fun ArchiveScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewMode
                     color = Color.Black
                 )
                 Text(
-                    text = "Click into card to choose desirable actions",
+                    text = "Hold card to choose desirable actions",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     color = Color.Black
                 )
                 val listProject by projectViewModel.archivedProjectList.collectAsState()
-                CardArchiveScreen(projectViewModel = projectViewModel, listProject = listProject, navController = navController)
+                CardArchiveScreen(
+                    projectViewModel = projectViewModel,
+                    listProject = listProject,
+                    navController = navController
+                )
             }
         }
     }
@@ -192,7 +244,11 @@ fun ArchiveScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewMode
 
 //TrashScreen
 @Composable
-fun TrashScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel, navController: NavController) {
+fun TrashScreen(
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel,
+    navController: NavController
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -212,15 +268,26 @@ fun TrashScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel,
                     color = Color.Black
                 )
                 Text(
-                    text = "Click into card to choose desirable actions",
+                    text = "Hold card to choose desirable actions",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
                     color = Color.Black
                 )
                 val listProject by projectViewModel.deletedProjectList.collectAsState()
-                CardTrashScreen(projectViewModel = projectViewModel, listProject = listProject, navController = navController)
-                if (listProject.isNotEmpty()){
-                    CallAlertDialog(3,"DELETE ALL", taskViewModel,projectViewModel,null,navController)
+                CardTrashScreen(
+                    projectViewModel = projectViewModel,
+                    listProject = listProject,
+                    navController = navController
+                )
+                if (listProject.isNotEmpty()) {
+                    CallAlertDialog(
+                        3,
+                        "DELETE ALL",
+                        taskViewModel,
+                        projectViewModel,
+                        null,
+                        navController
+                    )
                 }
 
             }
@@ -232,33 +299,39 @@ fun TrashScreen(taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel,
 
 //**************Dialog about Project Screen - Add Task - Confirm Delete**************
 @Composable
-fun CallAlertDialog(index: Int, nameButton: String, taskViewModel: TaskViewModel ,projectViewModel: ProjectViewModel, id: UUID?,navController: NavController) {
+fun CallAlertDialog(
+    index: Int,
+    nameButton: String,
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel,
+    id: UUID?,
+    navController: NavController
+) {
     val isDialogOpen = remember { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         if (index == 1) {
-            ShowProjectDialog(isDialogOpen,projectViewModel)
+            ShowProjectDialog(isDialogOpen, projectViewModel)
             Button(
                 onClick = {
                     isDialogOpen.value = true
                 },
-                colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+           //     colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
                 shape = RoundedCornerShape(50),
-                modifier = Modifier.padding(14.dp)
             ) {
-                Text("+ ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                 Text(
-                    text = nameButton,
+                    text = "+ " + nameButton,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White
                 )
             }
+
         } else if (index == 2) {
             if (id != null) {
-                ShowTaskDialog(isDialogOpen,nameButton,taskViewModel,id,navController)
+                ShowTaskDialog(isDialogOpen, nameButton, taskViewModel, id, navController)
             }
             Button(
                 onClick = {
@@ -266,7 +339,6 @@ fun CallAlertDialog(index: Int, nameButton: String, taskViewModel: TaskViewModel
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
                 shape = RoundedCornerShape(50),
-                modifier = Modifier.padding(10.dp)
             ) {
                 Text("+ ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                 Text(
@@ -277,14 +349,13 @@ fun CallAlertDialog(index: Int, nameButton: String, taskViewModel: TaskViewModel
                 )
             }
         } else if (index == 3) {
-            ShowConfirmDeleteDialog(isDialogOpen,projectViewModel)
+            ShowConfirmDeleteDialog(isDialogOpen, projectViewModel)
             Button(
                 onClick = {
                     isDialogOpen.value = true
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorConfirm)),
                 shape = RoundedCornerShape(50),
-                modifier = Modifier.padding(14.dp)
             ) {
                 Text("- ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                 Text(
@@ -300,7 +371,7 @@ fun CallAlertDialog(index: Int, nameButton: String, taskViewModel: TaskViewModel
 
 
 @Composable
-fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>,projectViewModel: ProjectViewModel) {
+fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: ProjectViewModel) {
     if (isDialogOpen.value) {
         Dialog(onDismissRequest = { isDialogOpen.value = false }) {
             Surface(
@@ -356,7 +427,14 @@ fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>,projectViewModel: Proj
                     Spacer(modifier = Modifier.padding(5.dp))
                     Button(
                         onClick = {
-                            projectViewModel.addProject(Project(title = textName, description = textDescription, isDeleted = false, isArchived = false))
+                            projectViewModel.addProject(
+                                Project(
+                                    title = textName,
+                                    description = textDescription,
+                                    isDeleted = false,
+                                    isArchived = false
+                                )
+                            )
                             isDialogOpen.value = false
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
@@ -383,7 +461,13 @@ fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>,projectViewModel: Proj
 }
 
 @Composable
-fun ShowTaskDialog(isDialogOpen: MutableState<Boolean>,nameButton: String,taskViewModel: TaskViewModel,id: UUID,navController: NavController) {
+fun ShowTaskDialog(
+    isDialogOpen: MutableState<Boolean>,
+    nameButton: String,
+    taskViewModel: TaskViewModel,
+    id: UUID,
+    navController: NavController
+) {
     if (isDialogOpen.value) {
         Dialog(onDismissRequest = { isDialogOpen.value = false }) {
             Surface(
@@ -421,7 +505,7 @@ fun ShowTaskDialog(isDialogOpen: MutableState<Boolean>,nameButton: String,taskVi
                             )
                         }
                     )
-                    val mCheckedImportant = remember{ mutableStateOf(false)}
+                    val mCheckedImportant = remember { mutableStateOf(false) }
                     Row(
 
                     ) {
@@ -434,7 +518,7 @@ fun ShowTaskDialog(isDialogOpen: MutableState<Boolean>,nameButton: String,taskVi
                         )
                         Switch(
                             checked = mCheckedImportant.value,
-                            onCheckedChange = {mCheckedImportant.value = it})
+                            onCheckedChange = { mCheckedImportant.value = it })
                     }
 
                     Spacer(modifier = Modifier.padding(5.dp))
@@ -446,7 +530,8 @@ fun ShowTaskDialog(isDialogOpen: MutableState<Boolean>,nameButton: String,taskVi
                                     status = Status.TODO,
                                     isImportant = mCheckedImportant.value,
                                     projectId = id
-                                ))
+                                )
+                            )
                             navController.navigate(NavigationItem.ToDo.withArgs(id.toString()))
                             isDialogOpen.value = false
                         },
@@ -474,7 +559,10 @@ fun ShowTaskDialog(isDialogOpen: MutableState<Boolean>,nameButton: String,taskVi
 }
 
 @Composable
-fun ShowConfirmDeleteDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: ProjectViewModel) {
+fun ShowConfirmDeleteDialog(
+    isDialogOpen: MutableState<Boolean>,
+    projectViewModel: ProjectViewModel
+) {
     if (isDialogOpen.value) {
         Dialog(onDismissRequest = { isDialogOpen.value = false }) {
             Surface(
@@ -485,15 +573,31 @@ fun ShowConfirmDeleteDialog(isDialogOpen: MutableState<Boolean>, projectViewMode
                 shape = RoundedCornerShape(5.dp),
                 color = colorResource(id = R.color.colorPrimary)
             ) {
-                Row(
+                Column(
                     modifier = Modifier.padding(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    Text(
+                        text = "Do you want to delete?",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.Black
+                    )
+                    Row(
+                        modifier = Modifier.padding(5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonConfirmDeleteAllProject(projectViewModel = projectViewModel,isDialogOpen = isDialogOpen)
+                        ButtonConfirmDeleteAllProject(
+                            projectViewModel = projectViewModel,
+                            isDialogOpen = isDialogOpen
+                        )
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonDeclineDeleteAllProject(isDialogOpen = isDialogOpen)
+                        ButtonDeclineDeleteAllProject(isDialogOpen = isDialogOpen)
+                    }
                 }
             }
         }
@@ -504,7 +608,7 @@ fun ShowConfirmDeleteDialog(isDialogOpen: MutableState<Boolean>, projectViewMode
 //**************Dialog about Task Screen**************
 //Card task
 @Composable
-fun CardTask(listTask: List<Task>,taskViewModel: TaskViewModel,navController: NavController) {
+fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: NavController) {
 //    val isDialogOpen = remember { mutableStateOf(false) }
     Row(
         Modifier.height(350.dp)
@@ -523,8 +627,8 @@ fun CardTask(listTask: List<Task>,taskViewModel: TaskViewModel,navController: Na
                         verticalArrangement = Arrangement.Center,
                     ) {
                         var color = Color.White
-                        if (item.isImportant){
-                            color = Color.Red
+                        if (item.isImportant) {
+                            color = colorResource(id = R.color.colorConfirm)
                         }
 //                    ShowTaskScreenDialog(isDialogOpen,item.id,taskViewModel,navController)
                         Button(
@@ -534,12 +638,12 @@ fun CardTask(listTask: List<Task>,taskViewModel: TaskViewModel,navController: Na
 //                            Log.d("test","ID ${item.id}")
 //                            Log.d("test","ID${item.content}")
                             },
-
                             colors = ButtonDefaults.buttonColors(backgroundColor = color),
                             shape = RoundedCornerShape(14),
                             modifier = Modifier.padding(14.dp)
                         ) {
                             Column(
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
                                     text = item.content,
@@ -552,88 +656,108 @@ fun CardTask(listTask: List<Task>,taskViewModel: TaskViewModel,navController: Na
                     }
 
                     DropdownMenu(
-
                         modifier = Modifier.align(Alignment.Center),
                         expanded = expanded,
-                        onDismissRequest = { expanded = false },) {
+                        onDismissRequest = { expanded = false },
+                    ) {
                         val statusTask = item.status
                         val projectID = item.projectId
 
-                        if (statusTask != Status.TODO){
+                        if (statusTask != Status.TODO) {
                             DropdownMenuItem(onClick = {
                                 taskViewModel.toToDo(item)
                                 navController.navigate(NavigationItem.ToDo.withArgs(item.projectId.toString()))
                                 expanded = false
                             }) {
-                                Text("Move to ToDo")
+                                Text(
+                                    "Move to ToDo",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Light,
+                                    color = Color.Black,
+                                )
                             }
                         }
 
-                        if (statusTask != Status.DOING){
+                        if (statusTask != Status.DOING) {
                             DropdownMenuItem(onClick = {
                                 taskViewModel.toDoing(item)
                                 navController.navigate(NavigationItem.Doing.withArgs(item.projectId.toString()))
                                 expanded = false
                             }) {
-                                Text("Move to Doing")
+                                Text(
+                                    "Move to Doing",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Light,
+                                    color = Color.Black,
+                                )
                             }
                         }
 
-                        if (statusTask != Status.DONE){
+                        if (statusTask != Status.DONE) {
                             DropdownMenuItem(onClick = {
                                 taskViewModel.toDone(item)
                                 navController.navigate(NavigationItem.Done.withArgs(item.projectId.toString()))
                                 expanded = false
                             }) {
-                                Text("Move to Done")
+                                Text(
+                                    "Move to Done",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Light,
+                                    color = Color.Black,
+                                )
                             }
                         }
 
 
-                        if (item.isImportant){
+                        if (item.isImportant) {
                             DropdownMenuItem(onClick = {
                                 taskViewModel.makeTaskNormal(item)
                                 expanded = false
                             }) {
-                                Text("Make normal")
+                                Text(
+                                    "Make normal",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Light,
+                                    color = Color.Black,
+                                )
                             }
-                        }else{
+                        } else {
                             DropdownMenuItem(onClick = {
                                 taskViewModel.makeTaskImportance(item)
                                 expanded = false
                             }) {
-                                Text("Make important")
+                                Text(
+                                    "Make important",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Light,
+                                    color = Color.Black,
+                                )
                             }
                         }
 
                         DropdownMenuItem(onClick = {
-
                             taskViewModel.deleteTask(item)
-                            if (statusTask == Status.TODO){
+                            if (statusTask == Status.TODO) {
                                 navController.navigate(NavigationItem.ToDo.withArgs(projectID.toString()))
-                            }
-                            else if (statusTask == Status.DOING){
+                            } else if (statusTask == Status.DOING) {
                                 navController.navigate(NavigationItem.Doing.withArgs(projectID.toString()))
-                            }
-                            else{
+                            } else {
                                 navController.navigate(NavigationItem.Done.withArgs(projectID.toString()))
                             }
                             expanded = false
                         }) {
-                            Text("Delete")
+                            Text(
+                                "Delete",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
                         }
-
-
                     }
-
-
-
                 }
-
             }
         }
     }
-
 }
 
 //@Composable
@@ -671,8 +795,13 @@ fun CardTask(listTask: List<Task>,taskViewModel: TaskViewModel,navController: Na
 //}
 
 @Composable
-fun ShowTaskScreenDialog(isDialogOpen: MutableState<Boolean>,idTask: UUID,taskViewModel: TaskViewModel,navController: NavController) {
-    Log.d("ID",idTask.toString())
+fun ShowTaskScreenDialog(
+    isDialogOpen: MutableState<Boolean>,
+    idTask: UUID,
+    taskViewModel: TaskViewModel,
+    navController: NavController
+) {
+    Log.d("ID", idTask.toString())
     if (isDialogOpen.value) {
         Dialog(onDismissRequest = { isDialogOpen.value = false }) {
             Surface(
@@ -688,17 +817,17 @@ fun ShowTaskScreenDialog(isDialogOpen: MutableState<Boolean>,idTask: UUID,taskVi
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonMoveToToDoTransfer(idTask,taskViewModel,navController)
+                    ButtonMoveToToDoTransfer(idTask, taskViewModel, navController)
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonMoveToDoingTransfer(idTask,taskViewModel,navController)
+                    ButtonMoveToDoingTransfer(idTask, taskViewModel, navController)
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonMoveToDoneTransfer(idTask,taskViewModel,navController)
+                    ButtonMoveToDoneTransfer(idTask, taskViewModel, navController)
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonMakeNormal(idTask,taskViewModel,navController)
+                    ButtonMakeNormal(idTask, taskViewModel, navController)
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonMakeImportant(idTask,taskViewModel,navController)
+                    ButtonMakeImportant(idTask, taskViewModel, navController)
 //                    Spacer(modifier = Modifier.padding(5.dp))
-                    ButtonDeleteTask(idTask,taskViewModel,navController)
+                    ButtonDeleteTask(idTask, taskViewModel, navController)
                 }
             }
         }
@@ -709,7 +838,11 @@ fun ShowTaskScreenDialog(isDialogOpen: MutableState<Boolean>,idTask: UUID,taskVi
 //**************Dialog about Archive Screen**************
 //Card task
 @Composable
-fun CardArchiveScreen(projectViewModel: ProjectViewModel,listProject: List<Project> ,navController: NavController) {
+fun CardArchiveScreen(
+    projectViewModel: ProjectViewModel,
+    listProject: List<Project>,
+    navController: NavController
+) {
     Row(
         modifier = Modifier.height(300.dp)
     ) {
@@ -763,18 +896,29 @@ fun CardArchiveScreen(projectViewModel: ProjectViewModel,listProject: List<Proje
                     DropdownMenu(
                         modifier = Modifier.align(Alignment.Center),
                         expanded = expanded,
-                        onDismissRequest = { expanded = false },) {
+                        onDismissRequest = { expanded = false },
+                    ) {
                         DropdownMenuItem(onClick = {
                             projectViewModel.unarchiveProject(item)
                             expanded = false
                         }) {
-                            Text("Restore")
+                            Text(
+                                text = "Restore",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
                         }
                         DropdownMenuItem(onClick = {
                             projectViewModel.sortDeleteProject(item)
                             expanded = false
                         }) {
-                            Text("Delete")
+                            Text(
+                                "Move to trash",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
                         }
                     }
                 }
@@ -814,7 +958,11 @@ fun CardArchiveScreen(projectViewModel: ProjectViewModel,listProject: List<Proje
 //**************Dialog about Trash Screen**************
 //Card task
 @Composable
-fun CardTrashScreen(projectViewModel: ProjectViewModel,listProject: List<Project> ,navController: NavController) {
+fun CardTrashScreen(
+    projectViewModel: ProjectViewModel,
+    listProject: List<Project>,
+    navController: NavController
+) {
     Row(
         modifier = Modifier.height(300.dp)
     ) {
@@ -868,18 +1016,29 @@ fun CardTrashScreen(projectViewModel: ProjectViewModel,listProject: List<Project
                     DropdownMenu(
                         modifier = Modifier.align(Alignment.Center),
                         expanded = expanded,
-                        onDismissRequest = { expanded = false },) {
+                        onDismissRequest = { expanded = false },
+                    ) {
                         DropdownMenuItem(onClick = {
                             projectViewModel.restoreProject(item)
                             expanded = false
                         }) {
-                            Text("Restore")
+                            Text(
+                                "Restore",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
                         }
                         DropdownMenuItem(onClick = {
                             projectViewModel.deleteProject(item)
                             expanded = false
                         }) {
-                            Text("Delete forever")
+                            Text(
+                                "Pernamently Delete",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
                         }
                     }
                 }
@@ -924,7 +1083,11 @@ fun CardTrashScreen(projectViewModel: ProjectViewModel,listProject: List<Project
 
 
 @Composable
-fun CardProject(projectViewModel: ProjectViewModel,listProject: List<Project> ,navController: NavController) {
+fun CardProject(
+    projectViewModel: ProjectViewModel,
+    listProject: List<Project>,
+    navController: NavController
+) {
     Row(
         modifier = Modifier.height(300.dp)
     ) {
@@ -940,6 +1103,7 @@ fun CardProject(projectViewModel: ProjectViewModel,listProject: List<Project> ,n
                         modifier = Modifier
                             .padding(14.dp)
                             .size(width = 200.dp, height = 70.dp)
+                            .fillMaxWidth()
                             .pointerInput(Unit) {
                                 detectTapGestures(
                                     onTap = {
@@ -954,8 +1118,7 @@ fun CardProject(projectViewModel: ProjectViewModel,listProject: List<Project> ,n
                         elevation = 4.dp,
                         color = Color.White,
                         shape = RoundedCornerShape(14),
-
-                        ) {
+                    ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -979,22 +1142,31 @@ fun CardProject(projectViewModel: ProjectViewModel,listProject: List<Project> ,n
                     DropdownMenu(
                         modifier = Modifier.align(Alignment.Center),
                         expanded = expanded,
-                        onDismissRequest = { expanded = false },) {
+                        onDismissRequest = { expanded = false },
+                    ) {
                         DropdownMenuItem(onClick = {
                             projectViewModel.archiveProject(item)
                             expanded = false
                         }) {
-                            Text("Archive")
+                            Text(
+                                "Archive",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
                         }
                         DropdownMenuItem(onClick = {
                             projectViewModel.sortDeleteProject(item)
                             expanded = false
                         }) {
-                            Text("Delete")
+                            Text(
+                                "Delete",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
                         }
-
                     }
-
                 }
 
             }
@@ -1007,15 +1179,16 @@ fun CardProject(projectViewModel: ProjectViewModel,listProject: List<Project> ,n
 //**************All Buttons**************
 
 @Composable
-fun DividerTask(){
+fun DividerTask() {
     Divider(
         Modifier
             .width(90.dp)
-            .padding(start = 20.dp),thickness = 4.dp)
+            .padding(start = 20.dp), thickness = 4.dp
+    )
 }
 
 @Composable
-fun DialogInAllTaskScreen(id: UUID,navController: NavController,type: String) {
+fun DialogInAllTaskScreen(id: UUID, navController: NavController, type: String) {
     Row(
         modifier = Modifier
             .padding(vertical = 5.dp, horizontal = 5.dp),
@@ -1025,37 +1198,32 @@ fun DialogInAllTaskScreen(id: UUID,navController: NavController,type: String) {
             verticalArrangement = Arrangement.Center
         ) {
             ButtonToDoTransfer(id, navController)
-            if (type=="TODO"){
+            if (type == "TODO") {
                 DividerTask()
             }
         }
-
         Column(
             verticalArrangement = Arrangement.Center
         ) {
             ButtonDoingTransfer(id, navController)
-            if (type=="DOING"){
+            if (type == "DOING") {
                 DividerTask()
             }
         }
-
         Column(
             verticalArrangement = Arrangement.Center
         ) {
             ButtonDoneTransfer(id, navController)
-            if (type=="DONE"){
+            if (type == "DONE") {
                 DividerTask()
             }
         }
-
-
-
     }
 }
 
 //**************All Buttons In Task Screen**************
 @Composable
-fun ButtonToDoTransfer(id: UUID,navController: NavController) {
+fun ButtonToDoTransfer(id: UUID, navController: NavController) {
     Button(
         onClick = {
             navController.navigate(NavigationItem.ToDo.withArgs(id.toString()))
@@ -1076,14 +1244,14 @@ fun ButtonToDoTransfer(id: UUID,navController: NavController) {
 }
 
 @Composable
-fun ButtonMoveToToDoTransfer(id: UUID, taskViewModel: TaskViewModel,navController: NavController) {
+fun ButtonMoveToToDoTransfer(id: UUID, taskViewModel: TaskViewModel, navController: NavController) {
     val task = taskViewModel.getTaskById(id).value
     Button(
         onClick = {
             if (task != null) {
                 taskViewModel.toToDo(task)
             }
-            Log.d("DEBUG","test")
+            Log.d("DEBUG", "test")
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorTodo)),
         shape = RoundedCornerShape(50),
@@ -1099,7 +1267,7 @@ fun ButtonMoveToToDoTransfer(id: UUID, taskViewModel: TaskViewModel,navControlle
 }
 
 @Composable
-fun ButtonDoingTransfer(id: UUID,navController: NavController) {
+fun ButtonDoingTransfer(id: UUID, navController: NavController) {
     Button(
         onClick = {
             navController.navigate(NavigationItem.Doing.withArgs(id.toString()))
@@ -1120,7 +1288,11 @@ fun ButtonDoingTransfer(id: UUID,navController: NavController) {
 }
 
 @Composable
-fun ButtonMoveToDoingTransfer(id: UUID, taskViewModel: TaskViewModel,navController: NavController) {
+fun ButtonMoveToDoingTransfer(
+    id: UUID,
+    taskViewModel: TaskViewModel,
+    navController: NavController
+) {
     val task = taskViewModel.getTaskById(id).value
     Button(
         onClick = {
@@ -1142,7 +1314,7 @@ fun ButtonMoveToDoingTransfer(id: UUID, taskViewModel: TaskViewModel,navControll
 }
 
 @Composable
-fun ButtonDoneTransfer(id: UUID,navController: NavController) {
+fun ButtonDoneTransfer(id: UUID, navController: NavController) {
     Button(
         onClick = {
             navController.navigate(NavigationItem.Done.withArgs(id.toString()))
@@ -1163,7 +1335,7 @@ fun ButtonDoneTransfer(id: UUID,navController: NavController) {
 }
 
 @Composable
-fun ButtonMoveToDoneTransfer(id: UUID, taskViewModel: TaskViewModel,navController: NavController) {
+fun ButtonMoveToDoneTransfer(id: UUID, taskViewModel: TaskViewModel, navController: NavController) {
     val task = taskViewModel.getTaskById(id).value
     Button(
         onClick = {
@@ -1187,7 +1359,7 @@ fun ButtonMoveToDoneTransfer(id: UUID, taskViewModel: TaskViewModel,navControlle
 
 //**************All Buttons In Archive Screen**************
 @Composable
-fun ButtonMakeNormal(id: UUID, taskViewModel: TaskViewModel,navController: NavController) {
+fun ButtonMakeNormal(id: UUID, taskViewModel: TaskViewModel, navController: NavController) {
     val task = taskViewModel.getTaskById(id).value
     Button(
         onClick = {
@@ -1209,17 +1381,15 @@ fun ButtonMakeNormal(id: UUID, taskViewModel: TaskViewModel,navController: NavCo
 }
 
 @Composable
-fun ButtonMakeImportant(idTask: UUID, taskViewModel: TaskViewModel,navController: NavController) {
+fun ButtonMakeImportant(idTask: UUID, taskViewModel: TaskViewModel, navController: NavController) {
     val task = taskViewModel.getTaskById(idTask).value
     Button(
         onClick = {
             if (task != null) {
-                Log.d("DEBUG",task.id.toString())
-                Log.d("DEBUG",task.content.toString())
-                Log.d("DEBUG",task.isImportant.toString())
+                Log.d("DEBUG", task.id.toString())
+                Log.d("DEBUG", task.content.toString())
+                Log.d("DEBUG", task.isImportant.toString())
                 taskViewModel.makeTaskImportance(task)
-
-
             }
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
@@ -1236,7 +1406,7 @@ fun ButtonMakeImportant(idTask: UUID, taskViewModel: TaskViewModel,navController
 }
 
 @Composable
-fun ButtonDeleteTask(id: UUID, taskViewModel: TaskViewModel,navController: NavController) {
+fun ButtonDeleteTask(id: UUID, taskViewModel: TaskViewModel, navController: NavController) {
     val task = taskViewModel.getTaskById(id).value
     Button(
         onClick = {
@@ -1244,7 +1414,7 @@ fun ButtonDeleteTask(id: UUID, taskViewModel: TaskViewModel,navController: NavCo
                 taskViewModel.deleteTask(task)
             }
         },
-        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDecline)),
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorConfirm)),
         shape = RoundedCornerShape(50),
         modifier = Modifier.padding(14.dp)
     ) {
@@ -1266,7 +1436,7 @@ fun ButtonDeclineDeleteAllProject(isDialogOpen: MutableState<Boolean>) {
             isDialogOpen.value = false
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDecline)),
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(30),
         modifier = Modifier.padding(5.dp)
     ) {
         Text(
@@ -1279,14 +1449,17 @@ fun ButtonDeclineDeleteAllProject(isDialogOpen: MutableState<Boolean>) {
 }
 
 @Composable
-fun ButtonConfirmDeleteAllProject(projectViewModel: ProjectViewModel,isDialogOpen: MutableState<Boolean>) {
+fun ButtonConfirmDeleteAllProject(
+    projectViewModel: ProjectViewModel,
+    isDialogOpen: MutableState<Boolean>
+) {
     Button(
         onClick = {
             projectViewModel.deleteAllProjectsIsDeleted()
             isDialogOpen.value = false
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorConfirm)),
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(30),
         modifier = Modifier.padding(5.dp)
     ) {
         Text(

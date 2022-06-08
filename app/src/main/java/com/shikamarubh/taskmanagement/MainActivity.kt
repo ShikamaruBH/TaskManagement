@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,7 +42,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val projectViewModel = viewModel<ProjectViewModel>()
                     val taskViewModel = viewModel<TaskViewModel>()
-                    Navigation(navController = navController, taskViewModel = taskViewModel, projectViewModel = projectViewModel)
+
+                    Navigation(
+                        navController = navController,
+                        taskViewModel = taskViewModel,
+                        projectViewModel = projectViewModel
+                    )
                 }
             }
         }
@@ -48,18 +55,26 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Navigation(navController: NavHostController,taskViewModel: TaskViewModel,projectViewModel: ProjectViewModel) {
+fun Navigation(
+    navController: NavHostController,
+    taskViewModel: TaskViewModel,
+    projectViewModel: ProjectViewModel
+) {
     NavHost(
         navController = navController,
         startDestination = NavigationItem.AddProject.route
     ) {
         composable(NavigationItem.AddProject.route) {
-            ProjectScreen(taskViewModel = taskViewModel,projectViewModel = projectViewModel,navController = navController)
+            ProjectScreen(
+                taskViewModel = taskViewModel,
+                projectViewModel = projectViewModel,
+                navController = navController
+            )
         }
         composable(
             route = NavigationItem.ToDo.route + "/{id}",
             arguments = listOf(
-                navArgument("id"){
+                navArgument("id") {
                     type = NavType.StringType
                     defaultValue = "0"
                     nullable = true
@@ -67,13 +82,18 @@ fun Navigation(navController: NavHostController,taskViewModel: TaskViewModel,pro
             )
 
         ) { entry ->
-            ToDoScreen(id = entry.arguments?.getString("id"),navController =  navController, taskViewModel = taskViewModel , projectViewModel = projectViewModel)
+            ToDoScreen(
+                id = entry.arguments?.getString("id"),
+                navController = navController,
+                taskViewModel = taskViewModel,
+                projectViewModel = projectViewModel
+            )
         }
 
         composable(
             route = NavigationItem.Doing.route + "/{id}",
             arguments = listOf(
-                navArgument("id"){
+                navArgument("id") {
                     type = NavType.StringType
                     defaultValue = "0"
                     nullable = true
@@ -81,13 +101,18 @@ fun Navigation(navController: NavHostController,taskViewModel: TaskViewModel,pro
             )
 
         ) { entry ->
-            DoingScreen(id = entry.arguments?.getString("id"),navController =  navController, taskViewModel = taskViewModel , projectViewModel = projectViewModel)
+            DoingScreen(
+                id = entry.arguments?.getString("id"),
+                navController = navController,
+                taskViewModel = taskViewModel,
+                projectViewModel = projectViewModel
+            )
         }
 
         composable(
             route = NavigationItem.Done.route + "/{id}",
             arguments = listOf(
-                navArgument("id"){
+                navArgument("id") {
                     type = NavType.StringType
                     defaultValue = "0"
                     nullable = true
@@ -95,13 +120,26 @@ fun Navigation(navController: NavHostController,taskViewModel: TaskViewModel,pro
             )
 
         ) { entry ->
-            DoneScreen(id = entry.arguments?.getString("id"),navController =  navController, taskViewModel = taskViewModel , projectViewModel = projectViewModel)
+            DoneScreen(
+                id = entry.arguments?.getString("id"),
+                navController = navController,
+                taskViewModel = taskViewModel,
+                projectViewModel = projectViewModel
+            )
         }
         composable(NavigationItem.Archive.route) {
-            ArchiveScreen(taskViewModel = taskViewModel,projectViewModel = projectViewModel,navController = navController)
+            ArchiveScreen(
+                taskViewModel = taskViewModel,
+                projectViewModel = projectViewModel,
+                navController = navController
+            )
         }
         composable(NavigationItem.Trash.route) {
-            TrashScreen(taskViewModel = taskViewModel,projectViewModel = projectViewModel,navController = navController)
+            TrashScreen(
+                taskViewModel = taskViewModel,
+                projectViewModel = projectViewModel,
+                navController = navController
+            )
         }
     }
 }
