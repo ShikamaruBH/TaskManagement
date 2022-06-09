@@ -36,17 +36,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             TaskManagementTheme {
                 val navController = rememberNavController()
+                val isDialogOpen = remember { mutableStateOf(false) }
                 Scaffold(
                     topBar = { TopAppBar() },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = { isDialogOpen.value = true },
+                        ) {
+                        }
+                    },
                     bottomBar = { BottomNavigation(navController = navController) }
                 ) {
                     val projectViewModel = viewModel<ProjectViewModel>()
                     val taskViewModel = viewModel<TaskViewModel>()
-
                     Navigation(
                         navController = navController,
                         taskViewModel = taskViewModel,
-                        projectViewModel = projectViewModel
+                        projectViewModel = projectViewModel,
+                        isDialogOpen = isDialogOpen.value
                     )
                 }
             }
@@ -58,7 +65,8 @@ class MainActivity : ComponentActivity() {
 fun Navigation(
     navController: NavHostController,
     taskViewModel: TaskViewModel,
-    projectViewModel: ProjectViewModel
+    projectViewModel: ProjectViewModel,
+    isDialogOpen : Boolean,
 ) {
     NavHost(
         navController = navController,
@@ -68,7 +76,8 @@ fun Navigation(
             ProjectScreen(
                 taskViewModel = taskViewModel,
                 projectViewModel = projectViewModel,
-                navController = navController
+                navController = navController,
+                isDialogOpen = isDialogOpen,
             )
         }
         composable(
@@ -86,7 +95,8 @@ fun Navigation(
                 id = entry.arguments?.getString("id"),
                 navController = navController,
                 taskViewModel = taskViewModel,
-                projectViewModel = projectViewModel
+                projectViewModel = projectViewModel,
+                isDialogOpen = isDialogOpen,
             )
         }
 
@@ -105,7 +115,8 @@ fun Navigation(
                 id = entry.arguments?.getString("id"),
                 navController = navController,
                 taskViewModel = taskViewModel,
-                projectViewModel = projectViewModel
+                projectViewModel = projectViewModel,
+                isDialogOpen = isDialogOpen,
             )
         }
 
@@ -124,7 +135,8 @@ fun Navigation(
                 id = entry.arguments?.getString("id"),
                 navController = navController,
                 taskViewModel = taskViewModel,
-                projectViewModel = projectViewModel
+                projectViewModel = projectViewModel,
+                isDialogOpen = isDialogOpen,
             )
         }
         composable(NavigationItem.Archive.route) {
@@ -138,11 +150,13 @@ fun Navigation(
             TrashScreen(
                 taskViewModel = taskViewModel,
                 projectViewModel = projectViewModel,
-                navController = navController
+                navController = navController,
+                isDialogOpen = isDialogOpen,
             )
         }
     }
 }
+
 
 @Composable
 fun BottomNavigation(navController: NavHostController) {
