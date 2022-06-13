@@ -427,27 +427,22 @@ fun ShowTaskDialog(
     if (isDialogOpen.value) {
         Dialog(onDismissRequest = { isDialogOpen.value = false }) {
             Surface(
-                modifier = Modifier
-                    .width(330.dp)
-                    .height(400.dp)
-                    .padding(15.dp),
+                modifier = Modifier.wrapContentSize(),
                 shape = RoundedCornerShape(5.dp),
                 color = colorResource(id = R.color.colorPrimary)
             ) {
                 Column(
-                    modifier = Modifier.padding(5.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Spacer(modifier = Modifier.padding(5.dp))
                     Text(
-                        text = " ADD TASK NAME",
+                        text = "Add new task",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.Black
                     )
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    var textTask by remember { mutableStateOf(" ") }
+                    var textTask by remember { mutableStateOf("") }
+                    val mCheckedImportant = remember { mutableStateOf(false) }
                     OutlinedTextField(
                         modifier = Modifier.padding(vertical = 20.dp),
                         value = textTask,
@@ -461,7 +456,6 @@ fun ShowTaskDialog(
                             )
                         }
                     )
-                    val mCheckedImportant = remember { mutableStateOf(false) }
                     Row {
 
                         Text(
@@ -474,7 +468,6 @@ fun ShowTaskDialog(
                             checked = mCheckedImportant.value,
                             onCheckedChange = { mCheckedImportant.value = it })
                     }
-                    Spacer(modifier = Modifier.padding(5.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,
@@ -484,7 +477,7 @@ fun ShowTaskDialog(
                             onClick = { isDialogOpen.value = false },
                             content = {
                                 Text(
-                                    text = "CANCEL",
+                                    text = "Cancel",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xfffd3c7e)
@@ -507,7 +500,7 @@ fun ShowTaskDialog(
                             },
                             content = {
                                 Text(
-                                    text = "ADD TASK",
+                                    text = "New task",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xfffd3c7e)
@@ -516,7 +509,6 @@ fun ShowTaskDialog(
                             modifier = Modifier.padding(5.dp)
                         )
                     }
-
                 }
             }
         }
@@ -531,26 +523,22 @@ fun ShowConfirmDeleteDialog(
     if (isDialogOpen.value) {
         Dialog(onDismissRequest = { isDialogOpen.value = false }) {
             Surface(
-                modifier = Modifier
-                    .width(400.dp)
-                    .height(150.dp)
+                modifier = Modifier.wrapContentSize()
                     .padding(10.dp),
                 shape = RoundedCornerShape(5.dp),
                 color = colorResource(id = R.color.colorPrimary)
             ) {
                 Column(
-                    modifier = Modifier.padding(5.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "Do you want to delete?",
+                        text = "Delete all project ?",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.Black
                     )
                     Row(
-                        modifier = Modifier.padding(5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -574,7 +562,6 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
 //    val isDialogOpen = remember { mutableStateOf(false) }
     LazyColumn {
         items(listTask) { item ->
-//                CallAlertTaskOrArchiveScreen(1, item)
             Box(
                 contentAlignment = Alignment.Center
             ) {
@@ -589,14 +576,8 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                     if (item.isImportant) {
                         color = colorResource(id = R.color.colorConfirm)
                     }
-//                    ShowTaskScreenDialog(isDialogOpen,item.id,taskViewModel,navController)
                     Button(
-                        onClick = {
-                            expanded = true
-//                            isDialogOpen.value = true
-//                            Log.d("test","ID ${item.id}")
-//                            Log.d("test","ID${item.content}")
-                        },
+                        onClick = { expanded = true },
                         colors = ButtonDefaults.buttonColors(backgroundColor = color),
                         shape = RoundedCornerShape(14),
                         modifier = Modifier.padding(
@@ -946,7 +927,6 @@ fun CardProject(
                             detectTapGestures(
                                 onTap = {
                                     navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
-//                                        navController.navigate(NavigationItem.Test.withArgs(item.id.toString()))
                                 },
                                 onLongPress = {
                                     expanded = true
@@ -1129,21 +1109,21 @@ fun ButtonDoneTransfer(id: UUID, navController: NavController) {
 //**************All Buttons In Trash Screen**************
 @Composable
 fun ButtonDeclineDeleteAllProject(isDialogOpen: MutableState<Boolean>) {
-    Button(
+    TextButton(
         onClick = {
             isDialogOpen.value = false
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDecline)),
         shape = RoundedCornerShape(30),
-        modifier = Modifier.padding(5.dp)
-    ) {
+        modifier = Modifier.padding(5.dp),
+        content = {
         Text(
             text = "DECLINE",
             fontSize = 18.sp,
-            fontWeight = FontWeight.ExtraBold,
+            fontWeight = FontWeight.Bold,
             color = Color.White
         )
-    }
+    },)
 }
 
 @Composable
@@ -1151,21 +1131,21 @@ fun ButtonConfirmDeleteAllProject(
     projectViewModel: ProjectViewModel,
     isDialogOpen: MutableState<Boolean>
 ) {
-    Button(
+    TextButton(
         onClick = {
             projectViewModel.deleteAllProjectsIsDeleted()
             isDialogOpen.value = false
         },
         colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorConfirm)),
         shape = RoundedCornerShape(30),
-        modifier = Modifier.padding(5.dp)
-    ) {
-        Text(
-            text = "CONFIRM",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White
-        )
-    }
+        modifier = Modifier.padding(5.dp),
+        content = {
+            Text(
+                text = "CONFIRM",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+    })
 }
 //**************All Buttons In Trash Screen**************

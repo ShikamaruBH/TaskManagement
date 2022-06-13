@@ -38,15 +38,6 @@ class MainActivity : ComponentActivity() {
                     .collectAsState(initial = navController.currentBackStackEntry)
                 Scaffold(
                     topBar = { TopAppBar() },
-//                    floatingActionButton = {
-//                        FloatingActionButton(
-//                            onClick = { isDialogOpen.value = true },
-//                            content = {
-//                                Icon(imageVector = Icons.Filled.Add, contentDescription = " ")
-//                            }
-//                        )
-//                    },
-
                     floatingActionButton = {
                         when (currentRoute.value?.destination?.route) {
                             "addproject" -> {
@@ -216,9 +207,6 @@ fun Navigation(
 fun BottomNavigation(navController: NavHostController) {
     val items = listOf(
         NavigationItem.AddProject,
-//        NavigationItem.ToDo,
-//        NavigationItem.Doing,
-//        NavigationItem.Done,
         NavigationItem.Archive,
         NavigationItem.Trash,
     )
@@ -234,15 +222,7 @@ fun BottomNavigation(navController: NavHostController) {
             BottomNavigationItem(
                 selected = currentRoute == item.route,
                 onClick = {
-                    navController.navigate(item.route) {
-//                        navController.graph.startDestinationRoute?.let { route ->
-//                            popUpTo(route) {
-//                                saveState = true
-//                            }
-//                        }
-//                        launchSingleTop = true
-//                        restoreState = true
-                    }
+                    navController.navigate(item.route)
                 },
                 icon = {
                     Icon(
