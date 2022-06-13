@@ -42,8 +42,10 @@ class MainActivity : ComponentActivity() {
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = { isDialogOpen.value = true },
-                        ) {
-                        }
+                            content = {
+                                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add project")
+                            }
+                        )
                     },
                     bottomBar = { BottomNavigation(navController = navController) }
                 ) {
@@ -53,7 +55,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         taskViewModel = taskViewModel,
                         projectViewModel = projectViewModel,
-                        isDialogOpen = isDialogOpen.value
+                        isDialogOpen = isDialogOpen
                     )
                 }
             }
@@ -66,7 +68,7 @@ fun Navigation(
     navController: NavHostController,
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
-    isDialogOpen : Boolean,
+    isDialogOpen : MutableState<Boolean>,
 ) {
     NavHost(
         navController = navController,

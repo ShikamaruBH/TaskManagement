@@ -2,9 +2,12 @@ package com.shikamarubh.taskmanagement
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -15,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -32,23 +36,20 @@ fun ProjectScreen(
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     navController: NavController,
-    isDialogOpen: Boolean,
+    isDialogOpen: MutableState<Boolean>,
 ) {
 //    val projectViewModel = viewModel<ProjectViewModel>()
 //    val status = remember {
 //        mutableStateOf(false)
 //    }
     Surface(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxSize()
     ) {
         Card(
             backgroundColor = colorResource(id = R.color.colorPrimary),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxHeight(),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top,
             ) {
@@ -58,7 +59,6 @@ fun ProjectScreen(
                     listProject = listProject,
                     navController = navController
                 )
-                Divider(modifier = Modifier.padding(60.dp))
                 CallAlertDialog(
                     1,
                     "ADD PROJECT",
@@ -82,7 +82,7 @@ fun ToDoScreen(
     navController: NavController,
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
-    isDialogOpen: Boolean,
+    isDialogOpen: MutableState<Boolean>,
 ) {
     val id = UUID.fromString(id)
 //    val status = remember {
@@ -126,7 +126,7 @@ fun DoneScreen(
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     navController: NavController,
-    isDialogOpen: Boolean,
+    isDialogOpen: MutableState<Boolean>,
 ) {
     val id = UUID.fromString(id)
 //    val status = remember {
@@ -173,7 +173,7 @@ fun DoingScreen(
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     navController: NavController,
-    isDialogOpen: Boolean,
+    isDialogOpen: MutableState<Boolean>,
 ) {
     val id = UUID.fromString(id)
 //    val status = remember {
@@ -220,27 +220,29 @@ fun ArchiveScreen(
     navController: NavController
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .fillMaxHeight(),
+        modifier = Modifier.fillMaxSize(),
     ) {
         Card(
             backgroundColor = colorResource(id = R.color.colorPrimary),
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Archive Screen",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     color = Color.Black
                 )
                 Text(
                     text = "Hold card to choose desirable actions",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Light,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     color = Color.Black
                 )
                 val listProject by projectViewModel.archivedProjectList.collectAsState()
@@ -260,18 +262,16 @@ fun TrashScreen(
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     navController: NavController,
-    isDialogOpen: Boolean,
+    isDialogOpen: MutableState<Boolean>,
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .fillMaxHeight(),
+        modifier = Modifier.fillMaxSize(),
     ) {
         Card(
             backgroundColor = colorResource(id = R.color.colorPrimary),
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -320,64 +320,67 @@ fun CallAlertDialog(
     projectViewModel: ProjectViewModel,
     id: UUID?,
     navController: NavController,
-    isDialogOpen: Boolean
+    isDialogOpen: MutableState<Boolean>
 ) {
     val isDialogOpenTT = remember { mutableStateOf(false) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (index == 1) {
-            ShowProjectDialog(isDialogOpen, projectViewModel)
-            //isDialogOpen == true
-//            Button(
-//                onClick = {
-//                    isDialogClose.value = false
-//                },
-//                     colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
-//                shape = RoundedCornerShape(50),
-//            ) {
-//                Text(
-//                    text = "+ " + nameButton,
-//                    fontSize = 14.sp,
-//                    fontWeight = FontWeight.ExtraBold,
-//                    color = Color.White
-//                )
-//            }
-        } else if (index == 2) {
-            if (id != null) {
-                ShowTaskDialog(isDialogOpenTT, nameButton, taskViewModel, id, navController)
+        when (index) {
+            1 -> {
+                ShowProjectDialog(isDialogOpen, projectViewModel)
+                //isDialogOpen == true
+    //            Button(
+    //                onClick = {
+    //                    isDialogClose.value = false
+    //                },
+    //                     colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+    //                shape = RoundedCornerShape(50),
+    //            ) {
+    //                Text(
+    //                    text = "+ " + nameButton,
+    //                    fontSize = 14.sp,
+    //                    fontWeight = FontWeight.ExtraBold,
+    //                    color = Color.White
+    //                )
+    //            }
             }
-            Button(
-                onClick = {
-                    isDialogOpenTT.value = true
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
-                shape = RoundedCornerShape(50),
-            ) {
-                Text("+ ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
-                Text(
-                    text = nameButton,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White
-                )
+            2 -> {
+                if (id != null) {
+                    ShowTaskDialog(isDialogOpenTT, nameButton, taskViewModel, id, navController)
+                }
+                Button(
+                    onClick = {
+                        isDialogOpenTT.value = true
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
+                    shape = RoundedCornerShape(50),
+                ) {
+                    Text("+ ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                    Text(
+                        text = nameButton,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                }
             }
-        } else if (index == 3) {
-            ShowConfirmDeleteDialog(isDialogOpenTT, projectViewModel)
-            Button(
-                onClick = {
-                    isDialogOpenTT.value = true
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorConfirm)),
-                shape = RoundedCornerShape(50),
-            ) {
-                Text("- ", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
-                Text(
-                    text = nameButton,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White
+            3 -> {
+                ShowConfirmDeleteDialog(isDialogOpenTT, projectViewModel)
+                FloatingActionButton(
+                    onClick = {
+                        isDialogOpenTT.value = true
+                    },
+                    backgroundColor = colorResource(id = R.color.colorConfirm),
+                    shape = RoundedCornerShape(50),
+                    content = {
+                                Text(
+                                    "- $nameButton",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color.White)
+                    }
                 )
             }
         }
@@ -386,35 +389,26 @@ fun CallAlertDialog(
 
 
 @Composable
-fun ShowProjectDialog(isDialogOpen: Boolean, projectViewModel: ProjectViewModel) {
-    val isDialogOpenTest = remember { mutableStateOf(false) }
-    if (isDialogOpen == true) {
-        Dialog(onDismissRequest = { isDialogOpenTest.value = false }) {
+fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: ProjectViewModel) {
+    if (isDialogOpen.value) {
+        Dialog(onDismissRequest = { isDialogOpen.value = false }) {
             Surface(
-                modifier = Modifier
-                    .width(330.dp)
-                    .height(400.dp)
-                    .padding(15.dp),
+                modifier = Modifier.wrapContentSize(),
                 shape = RoundedCornerShape(5.dp),
                 color = colorResource(id = R.color.colorPrimary)
             ) {
                 Column(
-                    modifier = Modifier.padding(5.dp),
+                    modifier = Modifier.wrapContentSize().padding(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                        Button(onClick = { isDialogOpenTest.value = false }) {
-                            Text(text = "Cancle")
-                        }
-                    Spacer(modifier = Modifier.padding(5.dp))
+                    var textName by remember { mutableStateOf("") }
+                    var textDescription by remember { mutableStateOf("") }
                     Text(
-                        text = " ADD PROJECT NAME",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.Black
+                        text = "Add new project",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    var textName by remember { mutableStateOf(" ") }
                     OutlinedTextField(
                         modifier = Modifier.padding(vertical = 10.dp),
                         value = textName,
@@ -428,8 +422,6 @@ fun ShowProjectDialog(isDialogOpen: Boolean, projectViewModel: ProjectViewModel)
                             )
                         }
                     )
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    var textDescription by remember { mutableStateOf(" ") }
                     OutlinedTextField(
                         modifier = Modifier.padding(vertical = 10.dp),
                         value = textDescription,
@@ -443,34 +435,43 @@ fun ShowProjectDialog(isDialogOpen: Boolean, projectViewModel: ProjectViewModel)
                             )
                         }
                     )
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    Button(
-                        onClick = {
-                            projectViewModel.addProject(
-                                Project(
-                                    title = textName,
-                                    description = textDescription,
-                                    isDeleted = false,
-                                    isArchived = false
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically,) {
+                        TextButton(
+                            onClick = { isDialogOpen.value = false },
+                            content = {
+                                Text(
+                                    text = "Cancel",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xfffd3c7e)
                                 )
-                            )
-                            isDialogOpenTest.value = false
-                        },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorAdd)),
-                        shape = RoundedCornerShape(50),
-                        modifier = Modifier.padding(14.dp)
-                    ) {
-                        Text(
-                            "+",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+                            },
+                            modifier = Modifier.padding(5.dp)
                         )
-                        Text(
-                            text = " ADD PROJECT",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+                        TextButton(
+                            onClick = {
+                                projectViewModel.addProject(
+                                    Project(
+                                        title = textName,
+                                        description = textDescription,
+                                        isDeleted = false,
+                                        isArchived = false
+                                    )
+                                )
+                                isDialogOpen.value = false
+                            },
+                            content = {
+                                Text(
+                                    text = "Add project",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xfffd3c7e)
+                                )
+                            },
+                            modifier = Modifier.padding(5.dp)
                         )
                     }
                 }
@@ -629,149 +630,145 @@ fun ShowConfirmDeleteDialog(
 @Composable
 fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: NavController) {
 //    val isDialogOpen = remember { mutableStateOf(false) }
-    Row(
-        Modifier.height(350.dp)
-    ) {
-        LazyColumn {
-            items(listTask) { item ->
+    LazyColumn {
+        items(listTask) { item ->
 //                CallAlertTaskOrArchiveScreen(1, item)
-                Box(
-                    contentAlignment = Alignment.Center
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                var expanded by remember {
+                    mutableStateOf(false)
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
-                    var expanded by remember {
-                        mutableStateOf(false)
+                    var color = Color.White
+                    if (item.isImportant) {
+                        color = colorResource(id = R.color.colorConfirm)
                     }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        var color = Color.White
-                        if (item.isImportant) {
-                            color = colorResource(id = R.color.colorConfirm)
-                        }
 //                    ShowTaskScreenDialog(isDialogOpen,item.id,taskViewModel,navController)
-                        Button(
-                            onClick = {
-                                expanded = true
+                    Button(
+                        onClick = {
+                            expanded = true
 //                            isDialogOpen.value = true
 //                            Log.d("test","ID ${item.id}")
 //                            Log.d("test","ID${item.content}")
-                            },
-                            colors = ButtonDefaults.buttonColors(backgroundColor = color),
-                            shape = RoundedCornerShape(14),
-                            modifier = Modifier.padding(14.dp)
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = color),
+                        shape = RoundedCornerShape(14),
+                        modifier = Modifier.padding(start = 5.dp, bottom = 2.dp, top = 1.dp, end = 5.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = item.content,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = Color.Black
-                                )
-                            }
+                            Text(
+                                text = item.content,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color.Black
+                            )
                         }
                     }
+                }
 
-                    DropdownMenu(
-                        modifier = Modifier.align(Alignment.Center),
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                    ) {
-                        val statusTask = item.status
-                        val projectID = item.projectId
+                DropdownMenu(
+                    modifier = Modifier.align(Alignment.Center),
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    val statusTask = item.status
+                    val projectID = item.projectId
 
-                        if (statusTask != Status.TODO) {
-                            DropdownMenuItem(onClick = {
-                                taskViewModel.toToDo(item)
-                                navController.navigate(NavigationItem.ToDo.withArgs(item.projectId.toString()))
-                                expanded = false
-                            }) {
-                                Text(
-                                    "Move to ToDo",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
-                                    color = Color.Black,
-                                )
-                            }
-                        }
-
-                        if (statusTask != Status.DOING) {
-                            DropdownMenuItem(onClick = {
-                                taskViewModel.toDoing(item)
-                                navController.navigate(NavigationItem.Doing.withArgs(item.projectId.toString()))
-                                expanded = false
-                            }) {
-                                Text(
-                                    "Move to Doing",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
-                                    color = Color.Black,
-                                )
-                            }
-                        }
-
-                        if (statusTask != Status.DONE) {
-                            DropdownMenuItem(onClick = {
-                                taskViewModel.toDone(item)
-                                navController.navigate(NavigationItem.Done.withArgs(item.projectId.toString()))
-                                expanded = false
-                            }) {
-                                Text(
-                                    "Move to Done",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
-                                    color = Color.Black,
-                                )
-                            }
-                        }
-
-
-                        if (item.isImportant) {
-                            DropdownMenuItem(onClick = {
-                                taskViewModel.makeTaskNormal(item)
-                                expanded = false
-                            }) {
-                                Text(
-                                    "Make normal",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
-                                    color = Color.Black,
-                                )
-                            }
-                        } else {
-                            DropdownMenuItem(onClick = {
-                                taskViewModel.makeTaskImportance(item)
-                                expanded = false
-                            }) {
-                                Text(
-                                    "Make important",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
-                                    color = Color.Black,
-                                )
-                            }
-                        }
-
+                    if (statusTask != Status.TODO) {
                         DropdownMenuItem(onClick = {
-                            taskViewModel.deleteTask(item)
-                            if (statusTask == Status.TODO) {
-                                navController.navigate(NavigationItem.ToDo.withArgs(projectID.toString()))
-                            } else if (statusTask == Status.DOING) {
-                                navController.navigate(NavigationItem.Doing.withArgs(projectID.toString()))
-                            } else {
-                                navController.navigate(NavigationItem.Done.withArgs(projectID.toString()))
-                            }
+                            taskViewModel.toToDo(item)
+                            navController.navigate(NavigationItem.ToDo.withArgs(item.projectId.toString()))
                             expanded = false
                         }) {
                             Text(
-                                "Delete",
+                                "Move to ToDo",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Light,
                                 color = Color.Black,
                             )
                         }
+                    }
+
+                    if (statusTask != Status.DOING) {
+                        DropdownMenuItem(onClick = {
+                            taskViewModel.toDoing(item)
+                            navController.navigate(NavigationItem.Doing.withArgs(item.projectId.toString()))
+                            expanded = false
+                        }) {
+                            Text(
+                                "Move to Doing",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
+                        }
+                    }
+
+                    if (statusTask != Status.DONE) {
+                        DropdownMenuItem(onClick = {
+                            taskViewModel.toDone(item)
+                            navController.navigate(NavigationItem.Done.withArgs(item.projectId.toString()))
+                            expanded = false
+                        }) {
+                            Text(
+                                "Move to Done",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
+                        }
+                    }
+
+
+                    if (item.isImportant) {
+                        DropdownMenuItem(onClick = {
+                            taskViewModel.makeTaskNormal(item)
+                            expanded = false
+                        }) {
+                            Text(
+                                "Make normal",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
+                        }
+                    } else {
+                        DropdownMenuItem(onClick = {
+                            taskViewModel.makeTaskImportance(item)
+                            expanded = false
+                        }) {
+                            Text(
+                                "Make important",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Light,
+                                color = Color.Black,
+                            )
+                        }
+                    }
+
+                    DropdownMenuItem(onClick = {
+                        taskViewModel.deleteTask(item)
+                        if (statusTask == Status.TODO) {
+                            navController.navigate(NavigationItem.ToDo.withArgs(projectID.toString()))
+                        } else if (statusTask == Status.DOING) {
+                            navController.navigate(NavigationItem.Doing.withArgs(projectID.toString()))
+                        } else {
+                            navController.navigate(NavigationItem.Done.withArgs(projectID.toString()))
+                        }
+                        expanded = false
+                    }) {
+                        Text(
+                            "Delete",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                        )
                     }
                 }
             }
@@ -856,89 +853,91 @@ fun ShowTaskScreenDialog(
 
 //**************Dialog about Archive Screen**************
 //Card task
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardArchiveScreen(
     projectViewModel: ProjectViewModel,
     listProject: List<Project>,
     navController: NavController
 ) {
-    Row(
-        modifier = Modifier.height(300.dp)
-    ) {
-        LazyColumn {
-            items(listProject) { item ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    var expanded by remember {
-                        mutableStateOf(false)
-                    }
-                    Surface(
-                        modifier = Modifier
-                            .padding(14.dp)
-                            .size(width = 200.dp, height = 70.dp)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onTap = {
-                                        navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
-                                    },
-                                    onLongPress = {
-                                        expanded = true
-                                    }
-                                )
-                            },
-                        elevation = 4.dp,
-                        color = Color.White,
-                        shape = RoundedCornerShape(14),
-
-                        ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = item.title,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.Black,
-                                modifier = Modifier.padding(5.dp)
+    LazyVerticalGrid(
+        cells = GridCells.Adaptive(180.dp)) {
+        items(listProject) { item ->
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                var expanded by remember {
+                    mutableStateOf(false)
+                }
+                Surface(
+                    modifier = Modifier
+                        .padding(14.dp)
+                        .size(width = 200.dp, height = 70.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
+                                },
+                                onLongPress = {
+                                    expanded = true
+                                }
                             )
-                            Text(
-                                text = item.description,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                                modifier = Modifier.padding(5.dp)
-                            )
-                        }
-                    }
+                        },
+                    elevation = 4.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(14),
 
-                    DropdownMenu(
-                        modifier = Modifier.align(Alignment.Center),
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
                     ) {
-                        DropdownMenuItem(onClick = {
-                            projectViewModel.unarchiveProject(item)
-                            expanded = false
-                        }) {
-                            Text(
-                                text = "Restore",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                            )
-                        }
-                        DropdownMenuItem(onClick = {
-                            projectViewModel.sortDeleteProject(item)
-                            expanded = false
-                        }) {
-                            Text(
-                                "Move to trash",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                            )
-                        }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = item.title,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        Text(
+                            text = item.description,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
+                }
+
+                DropdownMenu(
+                    modifier = Modifier.align(Alignment.Center),
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    DropdownMenuItem(onClick = {
+                        projectViewModel.unarchiveProject(item)
+                        expanded = false
+                    }) {
+                        Text(
+                            text = "Restore",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                        )
+                    }
+                    DropdownMenuItem(onClick = {
+                        projectViewModel.sortDeleteProject(item)
+                        expanded = false
+                    }) {
+                        Text(
+                            "Move to trash",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                        )
                     }
                 }
             }
@@ -976,89 +975,90 @@ fun CardArchiveScreen(
 
 //**************Dialog about Trash Screen**************
 //Card task
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardTrashScreen(
     projectViewModel: ProjectViewModel,
     listProject: List<Project>,
     navController: NavController
 ) {
-    Row(
-        modifier = Modifier.height(300.dp)
-    ) {
-        LazyColumn {
-            items(listProject) { item ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    var expanded by remember {
-                        mutableStateOf(false)
-                    }
-                    Surface(
-                        modifier = Modifier
-                            .padding(14.dp)
-                            .size(width = 200.dp, height = 70.dp)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onTap = {
-                                        navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
-                                    },
-                                    onLongPress = {
-                                        expanded = true
-                                    }
-                                )
-                            },
-                        elevation = 4.dp,
-                        color = Color.White,
-                        shape = RoundedCornerShape(14),
-
-                        ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = item.title,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.Black,
-                                modifier = Modifier.padding(5.dp)
+    LazyVerticalGrid(cells = GridCells.Adaptive(180.dp)) {
+        items(listProject) { item ->
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                var expanded by remember {
+                    mutableStateOf(false)
+                }
+                Surface(
+                    modifier = Modifier
+                        .padding(14.dp)
+                        .size(width = 200.dp, height = 70.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
+                                },
+                                onLongPress = {
+                                    expanded = true
+                                }
                             )
-                            Text(
-                                text = item.description,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                                modifier = Modifier.padding(5.dp)
-                            )
-                        }
-                    }
+                        },
+                    elevation = 4.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(14),
 
-                    DropdownMenu(
-                        modifier = Modifier.align(Alignment.Center),
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
                     ) {
-                        DropdownMenuItem(onClick = {
-                            projectViewModel.restoreProject(item)
-                            expanded = false
-                        }) {
-                            Text(
-                                "Restore",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                            )
-                        }
-                        DropdownMenuItem(onClick = {
-                            projectViewModel.deleteProject(item)
-                            expanded = false
-                        }) {
-                            Text(
-                                "Pernamently Delete",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                            )
-                        }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = item.title,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        Text(
+                            text = item.description,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = Color.Black,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
+                }
+
+                DropdownMenu(
+                    modifier = Modifier.align(Alignment.Center),
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    DropdownMenuItem(onClick = {
+                        projectViewModel.restoreProject(item)
+                        expanded = false
+                    }) {
+                        Text(
+                            "Restore",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                        )
+                    }
+                    DropdownMenuItem(onClick = {
+                        projectViewModel.deleteProject(item)
+                        expanded = false
+                    }) {
+                        Text(
+                            "Permanently Delete",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                        )
                     }
                 }
             }
@@ -1101,97 +1101,100 @@ fun CardTrashScreen(
 //**************About Project Screen**************
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardProject(
     projectViewModel: ProjectViewModel,
     listProject: List<Project>,
     navController: NavController
 ) {
-    Row(
-        modifier = Modifier.height(300.dp)
-    ) {
-        LazyColumn {
-            items(listProject) { item ->
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    var expanded by remember {
-                        mutableStateOf(false)
-                    }
-                    Surface(
-                        modifier = Modifier
-                            .padding(14.dp)
-                            .size(width = 200.dp, height = 70.dp)
-                            .fillMaxWidth()
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onTap = {
-                                        navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
+    LazyVerticalGrid(
+        cells = GridCells.Adaptive(180.dp),
+        modifier = Modifier.fillMaxSize()
+        ) {
+        items(listProject) { item ->
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                var expanded by remember {
+                    mutableStateOf(false)
+                }
+                Surface(
+                    modifier = Modifier
+                        .padding(14.dp)
+                        .size(width = 200.dp, height = 70.dp)
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
 //                                        navController.navigate(NavigationItem.Test.withArgs(item.id.toString()))
-                                    },
-                                    onLongPress = {
-                                        expanded = true
-                                    }
-                                )
-                            },
-                        elevation = 4.dp,
-                        color = Color.White,
-                        shape = RoundedCornerShape(14),
+                                },
+                                onLongPress = {
+                                    expanded = true
+                                }
+                            )
+                        },
+                    elevation = 4.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(14),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = item.title,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.Black,
-                                modifier = Modifier.padding(5.dp)
-                            )
-                            Text(
-                                text = item.description,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                                modifier = Modifier.padding(5.dp)
-                            )
-                        }
-                    }
-
-                    DropdownMenu(
-                        modifier = Modifier.align(Alignment.Center),
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                    ) {
-                        DropdownMenuItem(onClick = {
-                            projectViewModel.archiveProject(item)
-                            expanded = false
-                        }) {
-                            Text(
-                                "Archive",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                            )
-                        }
-                        DropdownMenuItem(onClick = {
-                            projectViewModel.sortDeleteProject(item)
-                            expanded = false
-                        }) {
-                            Text(
-                                "Delete",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
-                                color = Color.Black,
-                            )
-                        }
+                        Text(
+                            text = item.title,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        Text(
+                            text = item.description,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(5.dp)
+                        )
                     }
                 }
 
+                DropdownMenu(
+                    modifier = Modifier.align(Alignment.Center),
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    DropdownMenuItem(onClick = {
+                        projectViewModel.archiveProject(item)
+                        expanded = false
+                    }) {
+                        Text(
+                            "Archive",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                        )
+                    }
+                    DropdownMenuItem(onClick = {
+                        projectViewModel.sortDeleteProject(item)
+                        expanded = false
+                    }) {
+                        Text(
+                            "Delete",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
+                        )
+                    }
+                }
             }
+
         }
     }
-
 }
 //**************About Project Screen**************
 
