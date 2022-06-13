@@ -3,19 +3,15 @@ package com.shikamarubh.taskmanagement
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shikamarubh.taskmanagement.ui.theme.TaskManagementTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,15 +33,72 @@ class MainActivity : ComponentActivity() {
             TaskManagementTheme {
                 val navController = rememberNavController()
                 val isDialogOpen = remember { mutableStateOf(false) }
+                val currentRoute = navController
+                    .currentBackStackEntryFlow
+                    .collectAsState(initial = navController.currentBackStackEntry)
                 Scaffold(
                     topBar = { TopAppBar() },
+//                    floatingActionButton = {
+//                        FloatingActionButton(
+//                            onClick = { isDialogOpen.value = true },
+//                            content = {
+//                                Icon(imageVector = Icons.Filled.Add, contentDescription = " ")
+//                            }
+//                        )
+//                    },
+
                     floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = { isDialogOpen.value = true },
-                            content = {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add project")
+                        when (currentRoute.value?.destination?.route) {
+                            "addproject" -> {
+                                FloatingActionButton(
+                                    backgroundColor = colorResource(id = R.color.colorAdd),
+                                    onClick = {
+                                        isDialogOpen.value = true
+
+                                    },
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Add,
+                                            contentDescription = " ",
+                                            tint = colorResource(id = R.color.colorPrimary)
+                                        )
+                                    }
+                                )
                             }
-                        )
+                            "archive" -> {
+                            }
+                            "trash" -> {
+                                FloatingActionButton(
+                                    backgroundColor = colorResource(id = R.color.colorConfirm),
+                                    onClick = {
+                                        isDialogOpen.value = true
+                                    },
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = " ",
+                                            tint = colorResource(id = R.color.colorPrimary)
+                                        )
+                                    }
+                                )
+                            }
+                            else -> {
+                                FloatingActionButton(
+                                    backgroundColor = colorResource(id = R.color.colorAdd),
+                                    onClick = {
+                                        isDialogOpen.value = true
+
+                                    },
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Add,
+                                            contentDescription = " ",
+                                            tint = colorResource(id = R.color.colorPrimary)
+                                        )
+                                    }
+                                )
+                            }
+                        }
                     },
                     bottomBar = { BottomNavigation(navController = navController) }
                 ) {
@@ -68,7 +121,7 @@ fun Navigation(
     navController: NavHostController,
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
-    isDialogOpen : MutableState<Boolean>,
+    isDialogOpen: MutableState<Boolean>,
 ) {
     NavHost(
         navController = navController,
@@ -143,7 +196,6 @@ fun Navigation(
         }
         composable(NavigationItem.Archive.route) {
             ArchiveScreen(
-                taskViewModel = taskViewModel,
                 projectViewModel = projectViewModel,
                 navController = navController
             )
@@ -162,7 +214,7 @@ fun Navigation(
 
 @Composable
 fun BottomNavigation(navController: NavHostController) {
-    var items = listOf(
+    val items = listOf(
         NavigationItem.AddProject,
 //        NavigationItem.ToDo,
 //        NavigationItem.Doing,
@@ -171,7 +223,7 @@ fun BottomNavigation(navController: NavHostController) {
         NavigationItem.Trash,
     )
 
-    androidx.compose.material.BottomNavigation(
+    BottomNavigation(
         backgroundColor = colorResource(id = R.color.colorPrimaryDark),
         contentColor = Color.Black
     ) {
@@ -206,35 +258,6 @@ fun BottomNavigation(navController: NavHostController) {
         }
     }
 }
-
-
-//Card dự án
-@Composable
-fun CardProject() {
-    val paddingModifier = Modifier.padding(10.dp)
-    val expanded = remember { mutableStateOf(false) }
-    Card(
-        elevation = 10.dp,
-        shape = RoundedCornerShape(14),
-        modifier = paddingModifier,
-    ) {
-        Column(modifier = paddingModifier) {
-            Text(
-                text = "Khoa học dữ liệu",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.Black
-            )
-            Text(
-                text = "Chạy Deadline nè !",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Light,
-                color = Color.Black
-            )
-        }
-    }
-}
-///////////////////////////Ở DƯỚI KHÔNG CẦN ĐỌC///////////////////////////////////////
 
 //Thanh top menu
 @Composable
