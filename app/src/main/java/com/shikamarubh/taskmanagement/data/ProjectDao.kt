@@ -7,13 +7,13 @@ import java.util.*
 
 @Dao
 interface ProjectDao {
-    @Query("select * from project where isarchived = false and isdeleted = false")
+    @Query("select * from project where isarchived = 0 and isdeleted = 0")
     fun getAllProjects() : Flow<List<Project>>
 
-    @Query("select * from project where isarchived = true and isdeleted = false")
+    @Query("select * from project where isarchived = 1 and isdeleted = 0")
     fun getAllArchivedProjects() : Flow<List<Project>>
 
-    @Query("select * from project where isdeleted = true")
+    @Query("select * from project where isdeleted = 1")
     fun getAllDeletedProjects() : Flow<List<Project>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -21,6 +21,9 @@ interface ProjectDao {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateProject(project: Project)
+
+    @Query("delete from project where isdeleted = 1")
+    suspend fun deleteAllProjectsIsDeleted()
 
     @Query("delete from project")
     suspend fun deleteAllProjects()

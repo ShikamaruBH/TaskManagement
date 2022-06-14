@@ -15,6 +15,7 @@ class ProjectRepository
         suspend fun addProject(project: Project) = projectDao.insertProject(project)
         suspend fun updateProject(project: Project) = projectDao.updateProject(project)
         suspend fun deleteProject(project: Project) = projectDao.deleteProject(project)
+        suspend fun deleteAllProjectsIsDeleted() = projectDao.deleteAllProjectsIsDeleted()
         suspend fun deleteAllProjects() = projectDao.deleteAllProjects()
         suspend fun archiveProject(project: Project) {
             project.isArchived = true;
@@ -30,6 +31,8 @@ class ProjectRepository
         }
         suspend fun restoreProject(project: Project) {
             project.isDeleted = false;
+            project.isArchived = false;
             projectDao.updateProject(project)
         }
+
 }

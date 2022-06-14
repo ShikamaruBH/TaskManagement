@@ -72,6 +72,7 @@ class ProjectViewModel
         fun sortDeleteProject(project: Project) = viewModelScope.launch { projectRepository.sortDeleteProject(project) }
         fun restoreProject(project: Project) = viewModelScope.launch { projectRepository.restoreProject(project) }
         fun deleteProject(project: Project) = viewModelScope.launch { projectRepository.deleteProject(project) }
+        fun deleteAllProjectsIsDeleted() = viewModelScope.launch { projectRepository.deleteAllProjectsIsDeleted() }
         fun deleteAllProjects() = viewModelScope.launch { projectRepository.deleteAllProjects() }
         fun getProjectById(id : UUID) : LiveData<Project> {
             val project = MutableLiveData<Project>()
