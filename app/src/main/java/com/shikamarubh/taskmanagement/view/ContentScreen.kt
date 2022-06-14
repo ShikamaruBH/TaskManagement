@@ -1,4 +1,4 @@
-package com.shikamarubh.taskmanagement
+package com.shikamarubh.taskmanagement.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -17,11 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.shikamarubh.taskmanagement.R
 import com.shikamarubh.taskmanagement.model.Project
 import com.shikamarubh.taskmanagement.model.Status
 import com.shikamarubh.taskmanagement.model.Task
@@ -36,6 +38,7 @@ fun ProjectScreen(
     projectViewModel: ProjectViewModel,
     navController: NavController,
     isDialogOpen: MutableState<Boolean>,
+    topBarTitle: MutableState<String>,
 ) {
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -52,7 +55,8 @@ fun ProjectScreen(
                 CardProject(
                     projectViewModel = projectViewModel,
                     listProject = listProject,
-                    navController = navController
+                    navController = navController,
+                    topBarTitle = topBarTitle
                 )
                 CallAlertDialog(
                     1,
@@ -128,7 +132,7 @@ fun DoneScreen(
             backgroundColor = colorResource(id = R.color.colorPrimary),
         ) {
             Column(
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 DialogInAllTaskScreen(id_Task, navController, "DONE")
@@ -171,7 +175,7 @@ fun DoingScreen(
             backgroundColor = colorResource(id = R.color.colorPrimary),
         ) {
             Column(
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 DialogInAllTaskScreen(id_Task, navController, "DOING")
@@ -198,7 +202,8 @@ fun DoingScreen(
 @Composable
 fun ArchiveScreen(
     projectViewModel: ProjectViewModel,
-    navController: NavController
+    navController: NavController,
+    topBarTitle: MutableState<String>,
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -221,7 +226,7 @@ fun ArchiveScreen(
                 Text(
                     text = "Hold card to choose desired actions",
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Light,
+                    fontWeight = FontWeight.Normal,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = Color.Black
@@ -230,7 +235,8 @@ fun ArchiveScreen(
                 CardArchiveScreen(
                     projectViewModel = projectViewModel,
                     listProject = listProject,
-                    navController = navController
+                    navController = navController,
+                    topBarTitle = topBarTitle
                 )
             }
         }
@@ -244,6 +250,7 @@ fun TrashScreen(
     projectViewModel: ProjectViewModel,
     navController: NavController,
     isDialogOpen: MutableState<Boolean>,
+    topBarTitle: MutableState<String>,
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -264,15 +271,19 @@ fun TrashScreen(
                 Text(
                     text = "Hold card to choose desired actions",
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Light,
+                    fontWeight = FontWeight.Normal,
                     color = Color.Black
                 )
                 val listProject by projectViewModel.deletedProjectList.collectAsState()
                 CardTrashScreen(
                     projectViewModel = projectViewModel,
                     listProject = listProject,
-                    navController = navController
+                    navController = navController,
+                    topBarTitle = topBarTitle
                 )
+                if (isDialogOpen.value && listProject.isEmpty()) {
+                    isDialogOpen.value = false
+                }
                 if (listProject.isNotEmpty()) {
                     CallAlertDialog(
                         3,
@@ -325,26 +336,22 @@ fun CallAlertDialog(
 @Composable
 fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: ProjectViewModel) {
     if (isDialogOpen.value) {
-        Dialog(onDismissRequest = { isDialogOpen.value = false }) {
-            Surface(
-                modifier = Modifier.wrapContentSize(),
-                shape = RoundedCornerShape(5.dp),
-                color = colorResource(id = R.color.colorPrimary)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .padding(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    var textName by remember { mutableStateOf("") }
-                    var textDescription by remember { mutableStateOf("") }
-                    Text(
-                        text = "Add new project",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+        var textName by remember { mutableStateOf("") }
+        var textDescription by remember { mutableStateOf("") }
+
+        AlertDialog(
+            onDismissRequest = { isDialogOpen.value = false },
+            title = {
+                Text(
+                    text = "Add new project",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Column() {
                     OutlinedTextField(
                         modifier = Modifier.padding(vertical = 10.dp),
                         value = textName,
@@ -371,49 +378,45 @@ fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: Pro
                             )
                         }
                     )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        TextButton(
-                            onClick = { isDialogOpen.value = false },
-                            content = {
-                                Text(
-                                    text = "CANCEL",
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xfffd3c7e)
-                                )
-                            },
-                            modifier = Modifier.padding(5.dp)
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        projectViewModel.addProject(
+                            Project(
+                                title = textName,
+                                description = textDescription,
+                                isDeleted = false,
+                                isArchived = false
+                            )
                         )
-                        TextButton(
-                            onClick = {
-                                projectViewModel.addProject(
-                                    Project(
-                                        title = textName,
-                                        description = textDescription,
-                                        isDeleted = false,
-                                        isArchived = false
-                                    )
-                                )
-                                isDialogOpen.value = false
-                            },
-                            content = {
-                                Text(
-                                    text = "ADD PROJECT",
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xfffd3c7e)
-                                )
-                            },
-                            modifier = Modifier.padding(5.dp)
+                        isDialogOpen.value = false
+                    },
+                    content = {
+                        Text(
+                            text = "New project",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xfffd3c7e)
                         )
                     }
-                }
+                )
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { isDialogOpen.value = false },
+                    content = {
+                        Text(
+                            text = "Cancel",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+                )
             }
-        }
+        )
     }
 }
 
@@ -439,7 +442,8 @@ fun ShowTaskDialog(
                         text = "Add new task",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color.Black
+                        color = Color.Black,
+                        modifier = Modifier.padding(top=10.dp)
                     )
                     var textTask by remember { mutableStateOf("") }
                     val mCheckedImportant = remember { mutableStateOf(false) }
@@ -480,7 +484,7 @@ fun ShowTaskDialog(
                                     text = "Cancel",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xfffd3c7e)
+                                    color = Color.Black
                                 )
                             },
                             modifier = Modifier.padding(5.dp)
@@ -521,36 +525,31 @@ fun ShowConfirmDeleteDialog(
     projectViewModel: ProjectViewModel
 ) {
     if (isDialogOpen.value) {
-        Dialog(onDismissRequest = { isDialogOpen.value = false }) {
-            Surface(
-                modifier = Modifier.wrapContentSize()
-                    .padding(10.dp),
-                shape = RoundedCornerShape(5.dp),
-                color = colorResource(id = R.color.colorPrimary)
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Delete all project ?",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.Black
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        ButtonConfirmDeleteAllProject(
-                            projectViewModel = projectViewModel,
-                            isDialogOpen = isDialogOpen
-                        )
-                        ButtonDeclineDeleteAllProject(isDialogOpen = isDialogOpen)
-                    }
-                }
+        AlertDialog(
+            onDismissRequest = { isDialogOpen.value = false },
+            title = { Text(
+                modifier = Modifier.padding(top=5.dp),
+                text = "Delete all project",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.Black
+            ) },
+            text = { Text(
+                modifier = Modifier.padding(top=5.dp),
+                text = "Are you sure you want to delete all project?",
+                fontSize = 15.sp,
+                color = Color(0xFF818181)
+            ) },
+            confirmButton = {
+                ButtonConfirmDeleteAllProject(
+                    projectViewModel = projectViewModel,
+                    isDialogOpen = isDialogOpen
+                )
+            },
+            dismissButton = {
+                ButtonDeclineDeleteAllProject(isDialogOpen = isDialogOpen)
             }
-        }
+        )
     }
 }
 //**************Dialog about Project - Task - Confirm**************
@@ -572,7 +571,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    var color = Color.White
+                    var color = colorResource(id = R.color.colorTask)
                     if (item.isImportant) {
                         color = colorResource(id = R.color.colorConfirm)
                     }
@@ -585,6 +584,11 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                             bottom = 2.dp,
                             top = 1.dp,
                             end = 5.dp
+                        ),
+                        elevation = ButtonDefaults.elevation(
+                            defaultElevation = 6.dp,
+                            pressedElevation = 8.dp,
+                            disabledElevation = 0.dp
                         )
                     ) {
                         Column(
@@ -617,7 +621,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                             Text(
                                 "Move to ToDo",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
+                                fontWeight = FontWeight.Normal,
                                 color = Color.Black,
                             )
                         }
@@ -632,7 +636,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                             Text(
                                 "Move to Doing",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
+                                fontWeight = FontWeight.Normal,
                                 color = Color.Black,
                             )
                         }
@@ -647,7 +651,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                             Text(
                                 "Move to Done",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
+                                fontWeight = FontWeight.Normal,
                                 color = Color.Black,
                             )
                         }
@@ -662,7 +666,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                             Text(
                                 "Make normal",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
+                                fontWeight = FontWeight.Normal,
                                 color = Color.Black,
                             )
                         }
@@ -674,7 +678,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                             Text(
                                 "Make important",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Light,
+                                fontWeight = FontWeight.Normal,
                                 color = Color.Black,
                             )
                         }
@@ -698,7 +702,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                         Text(
                             "Delete",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                         )
                     }
@@ -716,7 +720,8 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
 fun CardArchiveScreen(
     projectViewModel: ProjectViewModel,
     listProject: List<Project>,
-    navController: NavController
+    navController: NavController,
+    topBarTitle: MutableState<String>,
 ) {
     LazyVerticalGrid(
         cells = GridCells.Adaptive(180.dp)
@@ -735,6 +740,7 @@ fun CardArchiveScreen(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
+                                    topBarTitle.value = item.title
                                     navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
                                 },
                                 onLongPress = {
@@ -743,7 +749,7 @@ fun CardArchiveScreen(
                             )
                         },
                     elevation = 4.dp,
-                    color = Color.White,
+                    color = colorResource(id = R.color.colorProject),
                     shape = RoundedCornerShape(14),
 
                     ) {
@@ -762,7 +768,7 @@ fun CardArchiveScreen(
                         Text(
                             text = item.description,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -783,7 +789,7 @@ fun CardArchiveScreen(
                         Text(
                             text = "Restore",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                         )
                     }
@@ -794,7 +800,7 @@ fun CardArchiveScreen(
                         Text(
                             "Move to trash",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                         )
                     }
@@ -812,7 +818,8 @@ fun CardArchiveScreen(
 fun CardTrashScreen(
     projectViewModel: ProjectViewModel,
     listProject: List<Project>,
-    navController: NavController
+    navController: NavController,
+    topBarTitle: MutableState<String>,
 ) {
     LazyVerticalGrid(cells = GridCells.Adaptive(180.dp)) {
         items(listProject) { item ->
@@ -829,6 +836,7 @@ fun CardTrashScreen(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
+                                    topBarTitle.value = item.title
                                     navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
                                 },
                                 onLongPress = {
@@ -837,7 +845,7 @@ fun CardTrashScreen(
                             )
                         },
                     elevation = 4.dp,
-                    color = Color.White,
+                    color = colorResource(id = R.color.colorProject),
                     shape = RoundedCornerShape(14),
 
                     ) {
@@ -856,7 +864,7 @@ fun CardTrashScreen(
                         Text(
                             text = item.description,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = Color.Black,
@@ -877,7 +885,7 @@ fun CardTrashScreen(
                         Text(
                             "Restore",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                         )
                     }
@@ -888,7 +896,7 @@ fun CardTrashScreen(
                         Text(
                             "Permanently Delete",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                         )
                     }
@@ -905,7 +913,8 @@ fun CardTrashScreen(
 fun CardProject(
     projectViewModel: ProjectViewModel,
     listProject: List<Project>,
-    navController: NavController
+    navController: NavController,
+    topBarTitle: MutableState<String>,
 ) {
     LazyVerticalGrid(
         cells = GridCells.Adaptive(180.dp),
@@ -926,6 +935,7 @@ fun CardProject(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
+                                    topBarTitle.value = item.title
                                     navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
                                 },
                                 onLongPress = {
@@ -934,7 +944,7 @@ fun CardProject(
                             )
                         },
                     elevation = 4.dp,
-                    color = Color.White,
+                    color = colorResource(id = R.color.colorProject),
                     shape = RoundedCornerShape(14),
                 ) {
                     Column(
@@ -952,7 +962,7 @@ fun CardProject(
                         Text(
                             text = item.description,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -973,7 +983,7 @@ fun CardProject(
                         Text(
                             "Archive",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                         )
                     }
@@ -984,7 +994,7 @@ fun CardProject(
                         Text(
                             "Delete",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Normal,
                             color = Color.Black,
                         )
                     }
@@ -1001,9 +1011,9 @@ fun CardProject(
 @Composable
 fun DividerTask() {
     Divider(
-        Modifier
-            .width(90.dp)
-            .padding(start = 20.dp), thickness = 4.dp
+        modifier = Modifier.width(100.dp),
+        thickness = 3.dp,
+        color = Color(0xfff8a426)
     )
 }
 
@@ -1011,98 +1021,99 @@ fun DividerTask() {
 fun DialogInAllTaskScreen(id: UUID, navController: NavController, type: String) {
     Row(
         modifier = Modifier
-            .padding(vertical = 5.dp, horizontal = 5.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(vertical = 5.dp, horizontal = 5.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Column(
+            Modifier.width(100.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            ButtonToDoTransfer(id, navController)
             if (type == "TODO") {
+                ButtonToDoTransfer(id, navController,true)
                 DividerTask()
-            }
+            } else
+                ButtonToDoTransfer(id, navController)
         }
         Column(
+            Modifier.width(100.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            ButtonDoingTransfer(id, navController)
             if (type == "DOING") {
+                ButtonDoingTransfer(id, navController,true)
                 DividerTask()
-            }
+            } else
+                ButtonDoingTransfer(id, navController)
+
         }
         Column(
+            Modifier.width(100.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            ButtonDoneTransfer(id, navController)
             if (type == "DONE") {
+                ButtonDoneTransfer(id, navController,true)
                 DividerTask()
-            }
+            } else
+                ButtonDoneTransfer(id, navController)
         }
     }
 }
 
 //**************All Buttons In Task Screen**************
 @Composable
-fun ButtonToDoTransfer(id: UUID, navController: NavController) {
-    Button(
+fun ButtonToDoTransfer(id: UUID, navController: NavController,isSelected: Boolean = false) {
+    TextButton(
         onClick = {
             navController.navigate(NavigationItem.ToDo.withArgs(id.toString()))
         },
-        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorTodo)),
-        shape = RoundedCornerShape(50),
-        modifier = Modifier
-            .padding(5.dp)
-            .width(100.dp)
-    ) {
+        content = {
         Text(
-            text = "TO-DO",
+            text = "TODO",
             fontSize = 18.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
+            color = if (isSelected) Color.Black else Color(0xff5b5b5c)
         )
-    }
+    })
 }
 
 @Composable
-fun ButtonDoingTransfer(id: UUID, navController: NavController) {
-    Button(
+fun ButtonDoingTransfer(id: UUID, navController: NavController,isSelected: Boolean = false) {
+    TextButton(
         onClick = {
             navController.navigate(NavigationItem.Doing.withArgs(id.toString()))
         },
-        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDoing)),
-        shape = RoundedCornerShape(50),
-        modifier = Modifier
-            .padding(5.dp)
-            .width(100.dp)
-    ) {
-        Text(
-            text = "DOING",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White
-        )
-    }
+        content = {
+            Text(
+                text = "DOING",
+                fontSize = 18.sp,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
+                color = if (isSelected) Color.Black else Color(0xff5b5b5c)
+            )
+        }
+    )
 }
 
 @Composable
-fun ButtonDoneTransfer(id: UUID, navController: NavController) {
-    Button(
+fun ButtonDoneTransfer(id: UUID, navController: NavController,isSelected: Boolean = false) {
+    TextButton(
         onClick = {
             navController.navigate(NavigationItem.Done.withArgs(id.toString()))
         },
-        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDone)),
-        shape = RoundedCornerShape(50),
-        modifier = Modifier
-            .padding(5.dp)
-            .width(100.dp)
-    ) {
-        Text(
-            text = "DONE",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White
-        )
-    }
+        content = {
+            Text(
+                text = "DONE",
+                fontSize = 18.sp,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
+                color = if (isSelected) Color.Black else Color(0xff5b5b5c)
+            )
+        }
+    )
 }
 //**************All Buttons In Task Screen**************
 
@@ -1113,15 +1124,14 @@ fun ButtonDeclineDeleteAllProject(isDialogOpen: MutableState<Boolean>) {
         onClick = {
             isDialogOpen.value = false
         },
-        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorDecline)),
         shape = RoundedCornerShape(30),
         modifier = Modifier.padding(5.dp),
         content = {
         Text(
-            text = "DECLINE",
+            text = "Decline",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = Color.Black
         )
     },)
 }
@@ -1136,15 +1146,14 @@ fun ButtonConfirmDeleteAllProject(
             projectViewModel.deleteAllProjectsIsDeleted()
             isDialogOpen.value = false
         },
-        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.colorConfirm)),
         shape = RoundedCornerShape(30),
         modifier = Modifier.padding(5.dp),
         content = {
             Text(
-                text = "CONFIRM",
+                text = "Confirm",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = colorResource(id = R.color.colorConfirm)
             )
     })
 }

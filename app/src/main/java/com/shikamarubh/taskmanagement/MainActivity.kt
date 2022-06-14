@@ -3,15 +3,19 @@ package com.shikamarubh.taskmanagement
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shikamarubh.taskmanagement.ui.theme.TaskManagementTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.shikamarubh.taskmanagement.view.*
 import com.shikamarubh.taskmanagement.viewmodel.ProjectViewModel
 import com.shikamarubh.taskmanagement.viewmodel.TaskViewModel
 
@@ -31,27 +36,30 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TaskManagementTheme {
+                val topBarTitle = remember {
+                    mutableStateOf("Task management")
+                }
                 val navController = rememberNavController()
                 val isDialogOpen = remember { mutableStateOf(false) }
                 val currentRoute = navController
                     .currentBackStackEntryFlow
                     .collectAsState(initial = navController.currentBackStackEntry)
+
                 Scaffold(
-                    topBar = { TopAppBar() },
+                    topBar = { TopAppBar(topBarTitle) },
                     floatingActionButton = {
                         when (currentRoute.value?.destination?.route) {
                             "addproject" -> {
                                 FloatingActionButton(
-                                    backgroundColor = colorResource(id = R.color.colorAdd),
+                                    backgroundColor = colorResource(id = R.color.colorAddProject),
                                     onClick = {
                                         isDialogOpen.value = true
-
                                     },
                                     content = {
                                         Icon(
                                             imageVector = Icons.Filled.Add,
-                                            contentDescription = " ",
-                                            tint = colorResource(id = R.color.colorPrimary)
+                                            contentDescription = "New project",
+                                            tint = colorResource(id = R.color.black)
                                         )
                                     }
                                 )
@@ -66,32 +74,33 @@ class MainActivity : ComponentActivity() {
                                     },
                                     content = {
                                         Icon(
-                                            imageVector = Icons.Filled.Delete,
-                                            contentDescription = " ",
-                                            tint = colorResource(id = R.color.colorPrimary)
+                                            imageVector = Icons.Filled.DeleteForever,
+                                            contentDescription = "Delete all",
+                                            tint = colorResource(id = R.color.colorPrimary),
+                                            modifier = Modifier.size(29.dp)
                                         )
                                     }
                                 )
                             }
                             else -> {
                                 FloatingActionButton(
-                                    backgroundColor = colorResource(id = R.color.colorAdd),
+                                    backgroundColor = colorResource(id = R.color.colorAddTask),
                                     onClick = {
                                         isDialogOpen.value = true
-
                                     },
                                     content = {
                                         Icon(
-                                            imageVector = Icons.Filled.Add,
-                                            contentDescription = " ",
-                                            tint = colorResource(id = R.color.colorPrimary)
+                                            imageVector = Icons.Filled.AddTask,
+                                            contentDescription = "New task",
+                                            tint = colorResource(id = R.color.colorPrimary),
+                                            modifier = Modifier.size(30.dp)
                                         )
                                     }
                                 )
                             }
                         }
                     },
-                    bottomBar = { BottomNavigation(navController = navController) }
+                    bottomBar = { BottomNavigation(navController = navController,topBarTitle=topBarTitle) }
                 ) {
                     val projectViewModel = viewModel<ProjectViewModel>()
                     val taskViewModel = viewModel<TaskViewModel>()
@@ -99,7 +108,8 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         taskViewModel = taskViewModel,
                         projectViewModel = projectViewModel,
-                        isDialogOpen = isDialogOpen
+                        isDialogOpen = isDialogOpen,
+                        topBarTitle
                     )
                 }
             }
@@ -113,6 +123,7 @@ fun Navigation(
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     isDialogOpen: MutableState<Boolean>,
+    topBarTitle: MutableState<String>
 ) {
     NavHost(
         navController = navController,
@@ -124,6 +135,7 @@ fun Navigation(
                 projectViewModel = projectViewModel,
                 navController = navController,
                 isDialogOpen = isDialogOpen,
+                topBarTitle = topBarTitle,
             )
         }
         composable(
@@ -188,7 +200,8 @@ fun Navigation(
         composable(NavigationItem.Archive.route) {
             ArchiveScreen(
                 projectViewModel = projectViewModel,
-                navController = navController
+                navController = navController,
+                topBarTitle = topBarTitle
             )
         }
         composable(NavigationItem.Trash.route) {
@@ -197,6 +210,7 @@ fun Navigation(
                 projectViewModel = projectViewModel,
                 navController = navController,
                 isDialogOpen = isDialogOpen,
+                topBarTitle = topBarTitle
             )
         }
     }
@@ -204,7 +218,8 @@ fun Navigation(
 
 
 @Composable
-fun BottomNavigation(navController: NavHostController) {
+fun BottomNavigation(navController: NavHostController,
+                     topBarTitle: MutableState<String>) {
     val items = listOf(
         NavigationItem.AddProject,
         NavigationItem.Archive,
@@ -222,6 +237,7 @@ fun BottomNavigation(navController: NavHostController) {
             BottomNavigationItem(
                 selected = currentRoute == item.route,
                 onClick = {
+                    topBarTitle.value = "Task management"
                     navController.navigate(item.route)
                 },
                 icon = {
@@ -241,15 +257,15 @@ fun BottomNavigation(navController: NavHostController) {
 
 //Thanh top menu
 @Composable
-fun TopAppBar() {
+fun TopAppBar(topBarTitle: MutableState<String>) {
     TopAppBar(
         title = {
             Text(
-                text = "Task Manager App",
+                text = topBarTitle.value,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.colorTodo)
+                color = Color.Black
             )
         },
-        backgroundColor = colorResource(id = R.color.colorPrimary),
+        backgroundColor = colorResource(id = R.color.colorTopBar),
     )
 }

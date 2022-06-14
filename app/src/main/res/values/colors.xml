@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FBF9F5</color>
-    <color name="colorPrimaryDark">#E6E2D9</color>
+    <color name="colorPrimary">#eef0f2</color>
+    <color name="colorPrimaryDark">#e63946</color>
     <color name="colorAcent">#FFFAF0</color>
     <color name="colorDone">#8BC06A</color>
     <color name="colorDoing">#F5A03E</color>
     <color name="colorTodo">#7D756D</color>
+    <color name="colorTopBar">#FFFFFF</color>
+    <color name="colorTask">#00afb9</color>
+    <color name="colorProject">#06d6a0</color>
 
-    <color name="colorAdd">#6262F6</color>
+    <color name="colorAddProject">#ffbc42</color>
+    <color name="colorAddTask">#73d2de</color>
     <color name="colorConfirm">#F53E3E</color>
     <color name="colorDecline">#C0C0C0</color>
 
