@@ -23,7 +23,7 @@ interface ProjectDao {
     suspend fun updateProject(project: Project)
 
     @Query("delete from project where isdeleted = 1")
-    suspend fun deleteAllProjectsIsDeleted()
+    suspend fun deleteAllProject()
 
     @Query("delete from project")
     suspend fun deleteAllProjects()

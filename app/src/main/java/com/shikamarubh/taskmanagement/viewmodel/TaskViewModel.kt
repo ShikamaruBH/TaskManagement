@@ -9,10 +9,11 @@ import com.shikamarubh.taskmanagement.data.TaskRepository
 import com.shikamarubh.taskmanagement.model.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -92,14 +93,14 @@ class TaskViewModel @Inject constructor(private val taskRepository: TaskReposito
     fun toDone(task: Task) = viewModelScope.launch { taskRepository.toDone(task) }
     fun makeTaskImportance(task: Task) = viewModelScope.launch { taskRepository.makeTaskImportance(task) }
     fun makeTaskNormal(task: Task) = viewModelScope.launch { taskRepository.makeTaskNormal(task) }
-    fun getTaskById(id: UUID): LiveData<Task>{
+    fun getTaskById(id: String): LiveData<Task>{
         val task = MutableLiveData<Task>()
         viewModelScope.launch {
             task.value = taskList.value.filter { p -> p.id == id }[0]
         }
         return task
     }
-    fun getTasksByProjectId(id: UUID): MutableStateFlow<List<Task>>{
+    fun getTasksByProjectId(id: String): MutableStateFlow<List<Task>>{
         val tasks = MutableStateFlow<List<Task>>(emptyList())
         viewModelScope.launch {
             tasks.value = taskList.value.filter { p -> p.projectId == id }
@@ -107,21 +108,21 @@ class TaskViewModel @Inject constructor(private val taskRepository: TaskReposito
         return tasks
     }
 
-    fun getToDoTasksByProjectId(id: UUID): MutableStateFlow<List<Task>>{
+    fun getToDoTasksByProjectId(id: String): MutableStateFlow<List<Task>>{
         val tasks = MutableStateFlow<List<Task>>(emptyList())
         viewModelScope.launch {
             tasks.value = todoTaskList.value.filter { p -> p.projectId == id  }
         }
         return tasks
     }
-    fun getDoingTasksByProjectId(id: UUID): MutableStateFlow<List<Task>>{
+    fun getDoingTasksByProjectId(id: String): MutableStateFlow<List<Task>>{
         val tasks = MutableStateFlow<List<Task>>(emptyList())
         viewModelScope.launch {
             tasks.value = doingTaskList.value.filter { p -> p.projectId == id  }
         }
         return tasks
     }
-    fun getDoneTasksByProjectId(id: UUID): MutableStateFlow<List<Task>>{
+    fun getDoneTasksByProjectId(id: String): MutableStateFlow<List<Task>>{
         val tasks = MutableStateFlow<List<Task>>(emptyList())
         viewModelScope.launch {
             tasks.value = doneTaskList.value.filter { p -> p.projectId == id  }

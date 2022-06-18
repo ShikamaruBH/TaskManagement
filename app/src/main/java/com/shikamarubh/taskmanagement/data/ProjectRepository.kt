@@ -4,7 +4,6 @@ import com.shikamarubh.taskmanagement.model.Project
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import java.util.*
 import javax.inject.Inject
 
 class ProjectRepository
@@ -15,8 +14,7 @@ class ProjectRepository
         suspend fun addProject(project: Project) = projectDao.insertProject(project)
         suspend fun updateProject(project: Project) = projectDao.updateProject(project)
         suspend fun deleteProject(project: Project) = projectDao.deleteProject(project)
-        suspend fun deleteAllProjectsIsDeleted() = projectDao.deleteAllProjectsIsDeleted()
-        suspend fun deleteAllProjects() = projectDao.deleteAllProjects()
+        suspend fun deleteAllProject() = projectDao.deleteAllProject()
         suspend fun archiveProject(project: Project) {
             project.isArchived = true;
             projectDao.updateProject(project)

@@ -5,6 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.shikamarubh.taskmanagement.data.ProjectRepository
 import com.shikamarubh.taskmanagement.model.Project
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,12 +17,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class ProjectViewModel
     @Inject constructor(private val projectRepository: ProjectRepository) : ViewModel() {
+        private val db = Firebase.firestore
+        private val collRef = db.collection("projects")
+        private val auth = Firebase.auth
         private val _projectList = MutableStateFlow<List<Project>>(emptyList())
         private val _archivedProjectList = MutableStateFlow<List<Project>>(emptyList())
         private val _deletedProjectList = MutableStateFlow<List<Project>>(emptyList())
@@ -65,16 +70,39 @@ class ProjectViewModel
             }
         }
 
-        fun addProject(project: Project) = viewModelScope.launch { projectRepository.addProject(project) }
+        fun addProject(project: Project) = viewModelScope.launch {
+            if (auth.currentUser != null) {
+                val docRef = collRef.document()
+                project.userId = auth.currentUser!!.uid
+                project.id = docRef.id
+                docRef.set(project)
+                projectRepository.addProject(project)
+            }
+        }
         fun updateProject(project: Project) = viewModelScope.launch { projectRepository.updateProject(project) }
-        fun archiveProject(project: Project) = viewModelScope.launch { projectRepository.archiveProject(project) }
+        fun archiveProject(project: Project) = viewModelScope.launch {
+            collRef.document(project.id).update("isArchived",true)
+            projectRepository.archiveProject(project)
+        }
         fun unarchiveProject(project: Project) = viewModelScope.launch { projectRepository.unarchiveProject(project) }
         fun sortDeleteProject(project: Project) = viewModelScope.launch { projectRepository.sortDeleteProject(project) }
         fun restoreProject(project: Project) = viewModelScope.launch { projectRepository.restoreProject(project) }
-        fun deleteProject(project: Project) = viewModelScope.launch { projectRepository.deleteProject(project) }
-        fun deleteAllProjectsIsDeleted() = viewModelScope.launch { projectRepository.deleteAllProjectsIsDeleted() }
-        fun deleteAllProjects() = viewModelScope.launch { projectRepository.deleteAllProjects() }
-        fun getProjectById(id : UUID) : LiveData<Project> {
+        fun deleteProject(project: Project) = viewModelScope.launch {
+            collRef.document(project.id).delete()
+            projectRepository.deleteProject(project)
+        }
+        fun deleteAllProject() = viewModelScope.launch {
+            collRef.whereEqualTo("isDeleted",true).get()
+                .addOnSuccessListener { result ->
+                    db.runBatch { batch ->
+                        for (doc in result) {
+                            batch.delete(doc.reference)
+                        }
+                    }
+                }
+            projectRepository.deleteAllProject()
+        }
+        fun getProjectById(id : String) : LiveData<Project> {
             val project = MutableLiveData<Project>()
             viewModelScope.launch {
                 project.value = projectList.value.filter { p -> p.id == id }[0]

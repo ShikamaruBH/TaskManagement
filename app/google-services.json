@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "449824494175",
+    "firebase_url": "https://task-management-fa25f-default-rtdb.firebaseio.com",
+    "project_id": "task-management-fa25f",
+    "storage_bucket": "task-management-fa25f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449824494175:android:6572eaae1a42a0d94041ea",
+        "android_client_info": {
+          "package_name": "com.shikamarubh.taskmanagement"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "449824494175-tln2rqq1n4aurqqb69gd8sglo7io3dtr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeBf6DFPIphnXuXwcxk18_5JkbsmEe1Fw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "449824494175-tln2rqq1n4aurqqb69gd8sglo7io3dtr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

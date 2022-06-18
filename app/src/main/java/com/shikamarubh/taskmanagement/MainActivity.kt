@@ -1,22 +1,30 @@
 package com.shikamarubh.taskmanagement
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import com.shikamarubh.taskmanagement.ui.theme.TaskManagementTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.navigation.NavHostController
@@ -26,18 +34,25 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.shikamarubh.taskmanagement.view.*
 import com.shikamarubh.taskmanagement.viewmodel.ProjectViewModel
 import com.shikamarubh.taskmanagement.viewmodel.TaskViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             TaskManagementTheme {
                 val topBarTitle = remember {
                     mutableStateOf("Task management")
+                }
+                val isLoggedIn = remember {
+                    mutableStateOf(false)
                 }
                 val navController = rememberNavController()
                 val isDialogOpen = remember { mutableStateOf(false) }
@@ -45,75 +60,92 @@ class MainActivity : ComponentActivity() {
                     .currentBackStackEntryFlow
                     .collectAsState(initial = navController.currentBackStackEntry)
 
-                Scaffold(
-                    topBar = { TopAppBar(topBarTitle) },
-                    floatingActionButton = {
-                        when (currentRoute.value?.destination?.route) {
-                            "addproject" -> {
-                                FloatingActionButton(
-                                    backgroundColor = colorResource(id = R.color.colorAddProject),
-                                    onClick = {
-                                        isDialogOpen.value = true
-                                    },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Filled.Add,
-                                            contentDescription = "New project",
-                                            tint = colorResource(id = R.color.black)
-                                        )
-                                    }
-                                )
-                            }
-                            "archive" -> {
-                            }
-                            "trash" -> {
-                                FloatingActionButton(
-                                    backgroundColor = colorResource(id = R.color.colorConfirm),
-                                    onClick = {
-                                        isDialogOpen.value = true
-                                    },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Filled.DeleteForever,
-                                            contentDescription = "Delete all",
-                                            tint = colorResource(id = R.color.colorPrimary),
-                                            modifier = Modifier.size(29.dp)
-                                        )
-                                    }
-                                )
-                            }
-                            else -> {
-                                FloatingActionButton(
-                                    backgroundColor = colorResource(id = R.color.colorAddTask),
-                                    onClick = {
-                                        isDialogOpen.value = true
-                                    },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Filled.AddTask,
-                                            contentDescription = "New task",
-                                            tint = colorResource(id = R.color.colorPrimary),
-                                            modifier = Modifier.size(30.dp)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    },
-                    bottomBar = { BottomNavigation(navController = navController,topBarTitle=topBarTitle) }
-                ) {
-                    val projectViewModel = viewModel<ProjectViewModel>()
-                    val taskViewModel = viewModel<TaskViewModel>()
-                    Navigation(
-                        navController = navController,
-                        taskViewModel = taskViewModel,
-                        projectViewModel = projectViewModel,
-                        isDialogOpen = isDialogOpen,
-                        topBarTitle
-                    )
+                if (isLoggedIn.value) {
+                    app(topBarTitle,currentRoute,isDialogOpen,navController,isLoggedIn)
+                } else {
+                    loginScreen(isLoggedIn = isLoggedIn)
                 }
             }
         }
+    }
+}
+
+@Composable
+fun app(
+    topBarTitle: MutableState<String>,
+    currentRoute: State<NavBackStackEntry?>,
+    isDialogOpen: MutableState<Boolean>,
+    navController: NavHostController,
+    isLoggedIn: MutableState<Boolean>,
+    )
+{
+    Scaffold(
+        topBar = { TopAppBar(topBarTitle) },
+        drawerContent = { DrawerView(isLoggedIn) },
+        floatingActionButton = {
+            when (currentRoute.value?.destination?.route) {
+                "addproject" -> {
+                    FloatingActionButton(
+                        backgroundColor = colorResource(id = R.color.colorAddProject),
+                        onClick = {
+                            isDialogOpen.value = true
+                        },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = "New project",
+                                tint = colorResource(id = R.color.black)
+                            )
+                        }
+                    )
+                }
+                "archive" -> {
+                }
+                "trash" -> {
+                    FloatingActionButton(
+                        backgroundColor = colorResource(id = R.color.colorConfirm),
+                        onClick = {
+                            isDialogOpen.value = true
+                        },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Filled.DeleteForever,
+                                contentDescription = "Delete all",
+                                tint = colorResource(id = R.color.colorPrimary),
+                                modifier = Modifier.size(29.dp)
+                            )
+                        }
+                    )
+                }
+                else -> {
+                    FloatingActionButton(
+                        backgroundColor = colorResource(id = R.color.colorAddTask),
+                        onClick = {
+                            isDialogOpen.value = true
+                        },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Filled.AddTask,
+                                contentDescription = "New task",
+                                tint = colorResource(id = R.color.colorPrimary),
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                    )
+                }
+            }
+        },
+        bottomBar = { BottomNavigation(navController = navController,topBarTitle=topBarTitle) }
+    ) {
+        val projectViewModel = viewModel<ProjectViewModel>()
+        val taskViewModel = viewModel<TaskViewModel>()
+        Navigation(
+            navController = navController,
+            taskViewModel = taskViewModel,
+            projectViewModel = projectViewModel,
+            isDialogOpen = isDialogOpen,
+            topBarTitle
+        )
     }
 }
 
@@ -150,7 +182,7 @@ fun Navigation(
 
         ) { entry ->
             ToDoScreen(
-                id = entry.arguments?.getString("id"),
+                id = entry.arguments?.getString("id")!!,
                 navController = navController,
                 taskViewModel = taskViewModel,
                 projectViewModel = projectViewModel,
@@ -170,7 +202,7 @@ fun Navigation(
 
         ) { entry ->
             DoingScreen(
-                id = entry.arguments?.getString("id"),
+                id = entry.arguments?.getString("id")!!,
                 navController = navController,
                 taskViewModel = taskViewModel,
                 projectViewModel = projectViewModel,
@@ -190,7 +222,7 @@ fun Navigation(
 
         ) { entry ->
             DoneScreen(
-                id = entry.arguments?.getString("id"),
+                id = entry.arguments?.getString("id")!!,
                 navController = navController,
                 taskViewModel = taskViewModel,
                 projectViewModel = projectViewModel,
@@ -267,5 +299,180 @@ fun TopAppBar(topBarTitle: MutableState<String>) {
             )
         },
         backgroundColor = colorResource(id = R.color.colorTopBar),
+    )
+}
+
+
+@Composable
+fun loginScreen(isLoggedIn: MutableState<Boolean>) {
+    val email = remember {
+        mutableStateOf("")
+    }
+    val pass = remember {
+        mutableStateOf("")
+    }
+    val pass2 = remember {
+        mutableStateOf("")
+    }
+    val registering = remember {
+        mutableStateOf(false)
+    }
+    val auth = Firebase.auth
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Task,
+            tint = colorResource(id = R.color.colorProject),
+            contentDescription = "logo",
+            modifier = Modifier
+                .width(150.dp)
+                .height(150.dp))
+        Text(
+            text = "Task management",
+            fontSize = 35.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 100.dp))
+        loginTextField(text = email, label = "Email", placeholder = "Nhập email",Icons.Filled.Email,false)
+        loginTextField(text = pass, label = "Mật khẩu", placeholder = "Nhập mật khẩu",Icons.Filled.Lock)
+        if (registering.value) {
+            loginTextField(text = pass2, label = "Nhập lại mật khẩu", placeholder = "Nhập lại mật khẩu",Icons.Filled.Lock)
+            Button(
+                onClick = {
+                    if (pass.value == pass2.value) {
+                        auth.createUserWithEmailAndPassword(email.value,pass.value).addOnCompleteListener {
+                                task ->
+                            if (task.isSuccessful) {
+                                isLoggedIn.value = true
+                                Log.d("DEBUG", "Create new user successful")
+                            }
+                            else
+                                Log.d("DEBUG", "Create new user fail")
+                        }
+                    }
+                },
+                content = { Text(
+                    text = "Đăng ký",
+                    fontWeight = FontWeight.Bold
+                ) },
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 100.dp, end = 100.dp, top = 10.dp, bottom = 10.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xffec7b01)))
+            TextButton(
+                onClick = { registering.value = false },
+                content = { Text(text = "Đăng nhập") },
+                modifier = Modifier.padding(10.dp))
+        } else {
+            Button(
+                onClick = {
+                    auth.signInWithEmailAndPassword(email.value,pass.value).addOnCompleteListener {
+                            task ->
+                        if (task.isSuccessful) {
+                            isLoggedIn.value = true
+                            Log.d("DEBUG", "Logging successful")
+                        }
+                        else
+                            Log.d("DEBUG", "Logging fail")
+                    }
+                },
+                content = { Text(
+                    text = "Đăng nhập",
+                    fontWeight = FontWeight.Bold
+                ) },
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 100.dp, end = 100.dp, top = 10.dp, bottom = 10.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xffec7b01)))
+            TextButton(
+                onClick = { registering.value = true },
+                content = { Text(text = "Đăng ký") },
+                modifier = Modifier.padding(10.dp))
+        }
+    }
+}
+
+@Composable
+fun loginTextField(text: MutableState<String>, label: String, placeholder: String, icon: ImageVector, hideText: Boolean = true) {
+    TextField(
+        modifier = Modifier.padding(bottom = 10.dp),
+        value = text.value,
+        onValueChange = { text.value = it },
+        label = { Text(text = label) },
+        placeholder = { Text(text = placeholder) },
+        visualTransformation = if (hideText) PasswordVisualTransformation() else VisualTransformation.None,
+        leadingIcon = { Icon(imageVector = icon, contentDescription = "email") },
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.Transparent
+        )
+    )
+}
+
+@Composable
+fun AddDrawerHeader() {
+    Card(
+        elevation = 4.dp,
+        modifier = Modifier
+            .fillMaxWidth(),
+        content = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.Start,
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .width(70.dp)
+                        .height(70.dp),
+                    imageVector = Icons.Filled.Task,
+                    contentDescription = "menu item",
+                    tint = colorResource(id = R.color.colorProject))
+                Text(
+                    text = "Menu",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold)
+            }
+        })
+}
+@Composable
+fun DrawerView(isLoggedIn: MutableState<Boolean>) {
+    LazyColumn {
+        item {
+            AddDrawerHeader()
+        }
+        item {
+            AddDrawerContentView(title = "Logout",icon = Icons.Filled.Logout,isLoggedIn)
+        }
+    }
+
+}
+@Composable
+fun AddDrawerContentView(title: String, icon: ImageVector,isLoggedIn: MutableState<Boolean>) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clickable {
+                Firebase.auth.signOut()
+                isLoggedIn.value = false
+            }
+            .padding(10.dp)
+            .fillMaxWidth(),
+        content = {
+            Icon(
+                modifier = Modifier
+                    .padding(10.dp),
+                imageVector = icon,
+                contentDescription = title)
+            Text(
+                text = title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+            )
+        }
     )
 }
