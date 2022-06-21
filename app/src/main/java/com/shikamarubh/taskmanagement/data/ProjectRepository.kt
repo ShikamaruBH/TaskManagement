@@ -8,13 +8,14 @@ import javax.inject.Inject
 
 class ProjectRepository
     @Inject constructor(private val projectDao: ProjectDao) {
-        fun getAllProjects() : Flow<List<Project>> = projectDao.getAllProjects().flowOn(Dispatchers.IO)
-        fun getAllArchivedProjects() : Flow<List<Project>> = projectDao.getAllArchivedProjects().flowOn(Dispatchers.IO)
-        fun getAllDeletedProjects() : Flow<List<Project>> = projectDao.getAllDeletedProjects().flowOn(Dispatchers.IO)
+        fun getUserProjects(userId: String) : Flow<List<Project>> = projectDao.getUserProjects(userId).flowOn(Dispatchers.IO)
+        fun getAllProjects(userId: String) : Flow<List<Project>> = projectDao.getAllProjects(userId).flowOn(Dispatchers.IO)
+        fun getAllArchivedProjects(userId: String) : Flow<List<Project>> = projectDao.getAllArchivedProjects(userId).flowOn(Dispatchers.IO)
+        fun getAllDeletedProjects(userId: String) : Flow<List<Project>> = projectDao.getAllDeletedProjects(userId).flowOn(Dispatchers.IO)
         suspend fun addProject(project: Project) = projectDao.insertProject(project)
         suspend fun updateProject(project: Project) = projectDao.updateProject(project)
         suspend fun deleteProject(project: Project) = projectDao.deleteProject(project)
-        suspend fun deleteAllProject() = projectDao.deleteAllProject()
+        suspend fun deleteAllProject(userId: String) = projectDao.deleteAllProject(userId)
         suspend fun archiveProject(project: Project) {
             project.isArchived = true;
             projectDao.updateProject(project)

@@ -384,10 +384,12 @@ fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: Pro
                     onClick = {
                         projectViewModel.addProject(
                             Project(
+                                id = projectViewModel.collRef.document().id,
                                 title = textName,
                                 description = textDescription,
                                 isDeleted = false,
-                                isArchived = false
+                                isArchived = false,
+                                userId = projectViewModel.userId,
                             )
                         )
                         isDialogOpen.value = false

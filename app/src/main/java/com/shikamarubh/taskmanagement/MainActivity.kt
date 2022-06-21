@@ -35,7 +35,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import com.shikamarubh.taskmanagement.model.Project
 import com.shikamarubh.taskmanagement.view.*
 import com.shikamarubh.taskmanagement.viewmodel.ProjectViewModel
 import com.shikamarubh.taskmanagement.viewmodel.TaskViewModel
@@ -139,6 +141,7 @@ fun app(
     ) {
         val projectViewModel = viewModel<ProjectViewModel>()
         val taskViewModel = viewModel<TaskViewModel>()
+        syncDatabase(projectViewModel,taskViewModel)
         Navigation(
             navController = navController,
             taskViewModel = taskViewModel,
@@ -147,6 +150,33 @@ fun app(
             topBarTitle
         )
     }
+}
+
+// Đọc dữ liệu người dùng từ firestore và kiểm tra đã có trong máy chưa
+fun syncDatabase(projectViewModel: ProjectViewModel, taskViewModel: TaskViewModel) {
+    // Gọi refresh để cập nhật lại userId và các danh sách project sau khi người dùng mới đăng nhập vào
+    projectViewModel.refresh()
+    // Đọc các project có userId là Id của user đang đăng nhập
+    projectViewModel.collRef
+        .whereEqualTo("userId", projectViewModel.userId)
+        .get()
+        .addOnSuccessListener {
+            result ->
+            for (doc in result) {
+                val project = doc.toObject<Project>()
+                // Kiểm tra nếu chưa có trong CSDL trong máy thì lưu vào máy
+                if (!projectViewModel.userProjects.value.contains(project)) {
+                    projectViewModel.addProject(project)
+                    Log.d("DEBUG", "Add project ${project.id} to local db")
+                } else {
+                    Log.d("DEBUG", "Project ${project.id} already in db")
+                }
+
+                // Đọc các task có projectId là Id của project trên
+
+                // Kiểm tra nếu chưa có trong CSDL trong máy thì lưu vào máy
+            }
+        }
 }
 
 @Composable

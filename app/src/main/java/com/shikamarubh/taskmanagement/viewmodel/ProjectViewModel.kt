@@ -7,15 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.shikamarubh.taskmanagement.data.ProjectRepository
 import com.shikamarubh.taskmanagement.model.Project
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,20 +22,41 @@ class ProjectViewModel
     @Inject constructor(private val projectRepository: ProjectRepository) : ViewModel() {
         // Đối tượng firestore dùng để giao tiếp với Firestore
         private val db = Firebase.firestore
+        val auth = Firebase.auth
         // Đối tượng collection reference kết nối đến collection tương ứng trên Firestore
-        private val collRef = db.collection("projects")
-        private val auth = Firebase.auth
+        val collRef = db.collection("projects")
+        var userId = auth.currentUser?.uid!!
+        private val _userProjects = MutableStateFlow<List<Project>>(emptyList())
         private val _projectList = MutableStateFlow<List<Project>>(emptyList())
         private val _archivedProjectList = MutableStateFlow<List<Project>>(emptyList())
         private val _deletedProjectList = MutableStateFlow<List<Project>>(emptyList())
 
+        val userProjects = _userProjects.asStateFlow()
         val projectList = _projectList.asStateFlow()
         val archivedProjectList = _archivedProjectList.asStateFlow()
         val deletedProjectList = _deletedProjectList.asStateFlow()
 
         init {
+            refresh()
+        }
+
+        fun refresh() {
+
+            userId = auth.currentUser?.uid!!
+
             viewModelScope.launch(Dispatchers.IO) {
-                projectRepository.getAllProjects().distinctUntilChanged()
+                projectRepository.getUserProjects(userId).distinctUntilChanged()
+                    .collect { listOfProject ->
+                        if (listOfProject.isNullOrEmpty()) {
+                            Log.d("DEBUG", "No user project")
+                            _userProjects.value = emptyList()
+                        } else {
+                            _userProjects.value = listOfProject
+                        }
+                    }
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                projectRepository.getAllProjects(userId).distinctUntilChanged()
                     .collect { listOfProject ->
                         if (listOfProject.isNullOrEmpty()) {
                             Log.d("DEBUG", "No project")
@@ -48,7 +67,7 @@ class ProjectViewModel
                     }
             }
             viewModelScope.launch(Dispatchers.IO) {
-                projectRepository.getAllArchivedProjects().distinctUntilChanged()
+                projectRepository.getAllArchivedProjects(userId).distinctUntilChanged()
                     .collect { listOfProject ->
                         if (listOfProject.isNullOrEmpty()) {
                             Log.d("DEBUG", "No archived project")
@@ -59,7 +78,7 @@ class ProjectViewModel
                     }
             }
             viewModelScope.launch(Dispatchers.IO) {
-                projectRepository.getAllDeletedProjects().distinctUntilChanged()
+                projectRepository.getAllDeletedProjects(userId).distinctUntilChanged()
                     .collect {
                             listOfProject ->
                         if (listOfProject.isNullOrEmpty()) {
@@ -71,17 +90,10 @@ class ProjectViewModel
                     }
             }
         }
-
         fun addProject(project: Project) = viewModelScope.launch {
-            if (auth.currentUser != null) {
-                // Tạo document mới trong collection projects
-                val docRef = collRef.document()
-                project.userId = auth.currentUser!!.uid
-                project.id = docRef.id
                 // Gán data trong document mới tạo bằng đối tượng project
-                docRef.set(project)
+                collRef.document(project.id).set(project)
                 projectRepository.addProject(project)
-            }
         }
         fun updateProject(project: Project) = viewModelScope.launch { projectRepository.updateProject(project) }
         fun archiveProject(project: Project) = viewModelScope.launch {
@@ -106,7 +118,7 @@ class ProjectViewModel
                         }
                     }
                 }
-            projectRepository.deleteAllProject()
+            projectRepository.deleteAllProject(userId)
         }
         fun getProjectById(id : String) : LiveData<Project> {
             val project = MutableLiveData<Project>()
