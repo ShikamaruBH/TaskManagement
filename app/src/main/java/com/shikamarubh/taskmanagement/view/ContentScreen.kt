@@ -29,7 +29,6 @@ import com.shikamarubh.taskmanagement.model.Status
 import com.shikamarubh.taskmanagement.model.Task
 import com.shikamarubh.taskmanagement.viewmodel.ProjectViewModel
 import com.shikamarubh.taskmanagement.viewmodel.TaskViewModel
-import java.util.*
 
 //**************ALL SCREENS**************
 @Composable
@@ -76,13 +75,13 @@ fun ProjectScreen(
 @Composable
 @SuppressLint("StateFlowValueCalledInComposition")
 fun ToDoScreen(
-    id: String?,
+    id: String,
     navController: NavController,
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     isDialogOpen: MutableState<Boolean>,
 ) {
-    val id_Task = UUID.fromString(id)
+    val id_Task = id
     val allToDoTask = taskViewModel.getToDoTasksByProjectId(id_Task).value
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -116,13 +115,13 @@ fun ToDoScreen(
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun DoneScreen(
-    id: String?,
+    id: String,
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     navController: NavController,
     isDialogOpen: MutableState<Boolean>,
 ) {
-    val id_Task = UUID.fromString(id)
+    val id_Task = id
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -159,13 +158,13 @@ fun DoneScreen(
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun DoingScreen(
-    id: String?,
+    id: String,
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
     navController: NavController,
     isDialogOpen: MutableState<Boolean>,
 ) {
-    val id_Task = UUID.fromString(id)
+    val id_Task = id
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -308,7 +307,7 @@ fun CallAlertDialog(
     index: Int,
     taskViewModel: TaskViewModel,
     projectViewModel: ProjectViewModel,
-    id: UUID?,
+    id: String?,
     navController: NavController,
     isDialogOpen: MutableState<Boolean>
 ) {
@@ -385,10 +384,12 @@ fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: Pro
                     onClick = {
                         projectViewModel.addProject(
                             Project(
+                                id = projectViewModel.collRef.document().id,
                                 title = textName,
                                 description = textDescription,
                                 isDeleted = false,
-                                isArchived = false
+                                isArchived = false,
+                                userId = projectViewModel.userId,
                             )
                         )
                         isDialogOpen.value = false
@@ -424,7 +425,7 @@ fun ShowProjectDialog(isDialogOpen: MutableState<Boolean>, projectViewModel: Pro
 fun ShowTaskDialog(
     isDialogOpen: MutableState<Boolean>,
     taskViewModel: TaskViewModel,
-    id: UUID,
+    id: String,
     navController: NavController
 ) {
     if (isDialogOpen.value) {
@@ -493,6 +494,7 @@ fun ShowTaskDialog(
                             onClick = {
                                 taskViewModel.addTask(
                                     Task(
+                                        id = taskViewModel.collRef.document().id,
                                         content = textTask,
                                         status = Status.TODO,
                                         isImportant = mCheckedImportant.value,
@@ -572,7 +574,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                     verticalArrangement = Arrangement.Center,
                 ) {
                     var color = colorResource(id = R.color.colorTask)
-                    if (item.isImportant) {
+                    if (item.isImportant!!) {
                         color = colorResource(id = R.color.colorConfirm)
                     }
                     Button(
@@ -595,7 +597,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = item.content,
+                                text = item.content!!,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color.Black
@@ -658,7 +660,7 @@ fun CardTask(listTask: List<Task>, taskViewModel: TaskViewModel, navController: 
                     }
 
 
-                    if (item.isImportant) {
+                    if (item.isImportant!!) {
                         DropdownMenuItem(onClick = {
                             taskViewModel.makeTaskNormal(item)
                             expanded = false
@@ -740,7 +742,7 @@ fun CardArchiveScreen(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    topBarTitle.value = item.title
+                                    topBarTitle.value = item.title!!
                                     navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
                                 },
                                 onLongPress = {
@@ -757,7 +759,7 @@ fun CardArchiveScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = item.title,
+                            text = item.title!!,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.Black,
@@ -766,7 +768,7 @@ fun CardArchiveScreen(
                             modifier = Modifier.padding(5.dp)
                         )
                         Text(
-                            text = item.description,
+                            text = item.description!!,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color.Black,
@@ -836,7 +838,7 @@ fun CardTrashScreen(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    topBarTitle.value = item.title
+                                    topBarTitle.value = item.title!!
                                     navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
                                 },
                                 onLongPress = {
@@ -853,7 +855,7 @@ fun CardTrashScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = item.title,
+                            text = item.title!!,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.Black,
@@ -862,7 +864,7 @@ fun CardTrashScreen(
                             modifier = Modifier.padding(5.dp)
                         )
                         Text(
-                            text = item.description,
+                            text = item.description!!,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Normal,
                             maxLines = 1,
@@ -935,7 +937,7 @@ fun CardProject(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    topBarTitle.value = item.title
+                                    topBarTitle.value = item.title!!
                                     navController.navigate(NavigationItem.ToDo.withArgs(item.id.toString()))
                                 },
                                 onLongPress = {
@@ -951,7 +953,7 @@ fun CardProject(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = item.title,
+                            text = item.title!!,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.Black,
@@ -960,7 +962,7 @@ fun CardProject(
                             modifier = Modifier.padding(5.dp)
                         )
                         Text(
-                            text = item.description,
+                            text = item.description!!,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color.Black,
@@ -1018,7 +1020,7 @@ fun DividerTask() {
 }
 
 @Composable
-fun DialogInAllTaskScreen(id: UUID, navController: NavController, type: String) {
+fun DialogInAllTaskScreen(id: String, navController: NavController, type: String) {
     Row(
         modifier = Modifier
             .padding(vertical = 5.dp, horizontal = 5.dp)
@@ -1061,7 +1063,7 @@ fun DialogInAllTaskScreen(id: UUID, navController: NavController, type: String) 
 
 //**************All Buttons In Task Screen**************
 @Composable
-fun ButtonToDoTransfer(id: UUID, navController: NavController,isSelected: Boolean = false) {
+fun ButtonToDoTransfer(id: String, navController: NavController,isSelected: Boolean = false) {
     TextButton(
         onClick = {
             navController.navigate(NavigationItem.ToDo.withArgs(id.toString()))
@@ -1079,7 +1081,7 @@ fun ButtonToDoTransfer(id: UUID, navController: NavController,isSelected: Boolea
 }
 
 @Composable
-fun ButtonDoingTransfer(id: UUID, navController: NavController,isSelected: Boolean = false) {
+fun ButtonDoingTransfer(id: String, navController: NavController,isSelected: Boolean = false) {
     TextButton(
         onClick = {
             navController.navigate(NavigationItem.Doing.withArgs(id.toString()))
@@ -1098,7 +1100,7 @@ fun ButtonDoingTransfer(id: UUID, navController: NavController,isSelected: Boole
 }
 
 @Composable
-fun ButtonDoneTransfer(id: UUID, navController: NavController,isSelected: Boolean = false) {
+fun ButtonDoneTransfer(id: String, navController: NavController,isSelected: Boolean = false) {
     TextButton(
         onClick = {
             navController.navigate(NavigationItem.Done.withArgs(id.toString()))
@@ -1143,7 +1145,7 @@ fun ButtonConfirmDeleteAllProject(
 ) {
     TextButton(
         onClick = {
-            projectViewModel.deleteAllProjectsIsDeleted()
+            projectViewModel.deleteAllProject()
             isDialogOpen.value = false
         },
         shape = RoundedCornerShape(30),

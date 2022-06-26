@@ -1,17 +1,15 @@
 package com.shikamarubh.taskmanagement.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
-import java.util.*
 
 @Entity
 data class Task(
     @PrimaryKey
-    val id: UUID = UUID.randomUUID(),
-    var content: String,
-    var status: Status,
-    var isImportant: Boolean,
-    val projectId: UUID,
+    val id: String = "",
+    var content: String? = null,
+    var status: Status? = null,
+    @field:JvmField
+    var isImportant: Boolean? = null,
+    val projectId: String? = null,
 )
