@@ -5,7 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.shikamarubh.taskmanagement.data.TaskRepository
+import com.shikamarubh.taskmanagement.model.Status
 import com.shikamarubh.taskmanagement.model.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +22,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TaskViewModel @Inject constructor(private val taskRepository: TaskRepository) : ViewModel() {
+    // Đối tượng firestore dùng để giao tiếp với Firestore
+    private val db = Firebase.firestore
+    val auth = Firebase.auth
+    // Đối tượng collection reference kết nối đến collection tương ứng trên Firestore
+    val collRef = db.collection("task")
+
     private val _taskList = MutableStateFlow<List<Task>>(emptyList())
     private val _todoTaskList = MutableStateFlow<List<Task>>(emptyList())
     private val _doingTaskList = MutableStateFlow<List<Task>>(emptyList())
@@ -29,10 +39,13 @@ class TaskViewModel @Inject constructor(private val taskRepository: TaskReposito
     val doneTaskList = _doneTaskList.asStateFlow()
 
     init {
+        refresh()
+    }
+    fun refresh(){
         viewModelScope.launch(Dispatchers.IO) {
             taskRepository.getAllTasks().distinctUntilChanged()
                 .collect {
-                    listOfTask ->
+                        listOfTask ->
                     if (listOfTask.isNullOrEmpty()){
                         Log.d("DEBUG Task","Null or empty Task List")
                         _taskList.value= emptyList()
@@ -80,19 +93,35 @@ class TaskViewModel @Inject constructor(private val taskRepository: TaskReposito
                     }
                 }
         }
-
-
     }
 
-    fun addTask(task: Task) = viewModelScope.launch { taskRepository.addTask(task) }
-    fun updateTask(task: Task) = viewModelScope.launch { taskRepository.updateTask(task) }
-    fun deleteTask(task: Task) = viewModelScope.launch { taskRepository.deleteTask(task) }
+    fun addTask(task: Task) = viewModelScope.launch {
+        collRef.document(task.id).set(task)
+        taskRepository.addTask(task)
+    }
+    fun updateTask(task: Task) = viewModelScope.launch {
+        collRef.document(task.id).update("status", task.status)
+        taskRepository.updateTask(task) }
+    fun deleteTask(task: Task) = viewModelScope.launch {
+        collRef.document(task.id).delete()
+        taskRepository.deleteTask(task)
+    }
     fun deleteAllTask() = viewModelScope.launch { taskRepository.deleteAllTasks() }
-    fun toToDo(task: Task) = viewModelScope.launch { taskRepository.toToDo(task) }
-    fun toDoing(task: Task) = viewModelScope.launch { taskRepository.toDoing(task) }
-    fun toDone(task: Task) = viewModelScope.launch { taskRepository.toDone(task) }
-    fun makeTaskImportance(task: Task) = viewModelScope.launch { taskRepository.makeTaskImportance(task) }
-    fun makeTaskNormal(task: Task) = viewModelScope.launch { taskRepository.makeTaskNormal(task) }
+    fun toToDo(task: Task) = viewModelScope.launch { taskRepository.toToDo(task)
+        collRef.document(task.id).update("status", Status.TODO)
+    }
+    fun toDoing(task: Task) = viewModelScope.launch { taskRepository.toDoing(task)
+        collRef.document(task.id).update("status", Status.DOING)
+    }
+    fun toDone(task: Task) = viewModelScope.launch { taskRepository.toDone(task)
+        collRef.document(task.id).update("status", Status.DONE)
+    }
+    fun makeTaskImportance(task: Task) = viewModelScope.launch {
+        collRef.document(task.id).update("isImportant", true)
+        taskRepository.makeTaskImportance(task) }
+    fun makeTaskNormal(task: Task) = viewModelScope.launch {
+        collRef.document(task.id).update("isImportant", false)
+        taskRepository.makeTaskNormal(task) }
     fun getTaskById(id: String): LiveData<Task>{
         val task = MutableLiveData<Task>()
         viewModelScope.launch {

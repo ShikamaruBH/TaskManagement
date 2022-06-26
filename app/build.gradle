@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-common-ktx:20.1.1'
     def room_version = "2.4.2"
     def lifecycle_version = "2.4.0"
 

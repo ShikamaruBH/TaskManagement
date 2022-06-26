@@ -38,6 +38,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.shikamarubh.taskmanagement.model.Project
+import com.shikamarubh.taskmanagement.model.Task
 import com.shikamarubh.taskmanagement.view.*
 import com.shikamarubh.taskmanagement.viewmodel.ProjectViewModel
 import com.shikamarubh.taskmanagement.viewmodel.TaskViewModel
@@ -171,13 +172,26 @@ fun syncDatabase(projectViewModel: ProjectViewModel, taskViewModel: TaskViewMode
                 } else {
                     Log.d("DEBUG", "Project ${project.id} already in db")
                 }
-
-                // Đọc các task có projectId là Id của project trên
-
-                // Kiểm tra nếu chưa có trong CSDL trong máy thì lưu vào máy
-            }
+                taskViewModel.collRef
+                    .whereEqualTo("projectId", project.id)
+                    .get()
+                    .addOnSuccessListener { result ->
+                        for (doc in result) {
+                            val task = doc.toObject<Task>()
+                            // Kiểm tra nếu chưa có trong CSDL trong máy thì lưu vào máy
+                            if (!taskViewModel.taskList.value.contains(task)) {
+                                taskViewModel.addTask(task)
+                                Log.d("DEBUG", "Add task ${task.id} to local db")
+                            } else {
+                                Log.d("DEBUG", "Task ${task.id} already in db")
+                            }
+                        }
+                    }
+                }
+             }
         }
-}
+
+
 
 @Composable
 fun Navigation(

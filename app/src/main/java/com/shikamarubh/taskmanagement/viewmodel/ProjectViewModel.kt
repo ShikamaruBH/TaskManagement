@@ -101,9 +101,20 @@ class ProjectViewModel
             collRef.document(project.id).update("isArchived",true)
             projectRepository.archiveProject(project)
         }
-        fun unarchiveProject(project: Project) = viewModelScope.launch { projectRepository.unarchiveProject(project) }
-        fun sortDeleteProject(project: Project) = viewModelScope.launch { projectRepository.sortDeleteProject(project) }
-        fun restoreProject(project: Project) = viewModelScope.launch { projectRepository.restoreProject(project) }
+        fun unarchiveProject(project: Project) = viewModelScope.launch {
+            // Update trường isArchived với giá trị false trong collection projects (collRef) ở document có id bằng id của đối tượng project
+            collRef.document(project.id).update("isArchived",false)
+            projectRepository.unarchiveProject(project)
+        }
+        fun sortDeleteProject(project: Project) = viewModelScope.launch {
+            collRef.document(project.id).update("isDeleted",true)
+            projectRepository.sortDeleteProject(project)
+        }
+        fun restoreProject(project: Project) = viewModelScope.launch {
+            collRef.document(project.id).update("isArchived",false)
+            collRef.document(project.id).update("isDeleted",false)
+            projectRepository.restoreProject(project)
+        }
         fun deleteProject(project: Project) = viewModelScope.launch {
             // Xoá document trong collection projects mà có id bằng id của đối tượng project truyền vào
             collRef.document(project.id).delete()

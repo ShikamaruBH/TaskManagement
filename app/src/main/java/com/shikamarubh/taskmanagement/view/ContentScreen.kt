@@ -494,6 +494,7 @@ fun ShowTaskDialog(
                             onClick = {
                                 taskViewModel.addTask(
                                     Task(
+                                        id = taskViewModel.collRef.document().id,
                                         content = textTask,
                                         status = Status.TODO,
                                         isImportant = mCheckedImportant.value,
