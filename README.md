@@ -1,44 +1,57 @@
 # TaskManagement
 ## Features:
-- Add project to manage the task which you will do
-- Add a task with the name and importance of the task
-- Archive/Store project in a trash bin
+- Add project to manage tasks which you will do.
+- Add a task with name and mark importance of the task, delete task.
+- Archive project or move project to trash bin.
+- Sync data from Firebase at first time login.
 ## Preview :
+<table>
+    <tr>
+        <td><b><p align="center">Login Screen<p></b></td>
+        <td><b><p align="center">Register Screen<p></b></td>
+        <td><b><p align="center">Main Screen<p></b></td>
+        <td><b><p align="center">Add Project Screen<p></b></td>
+    </tr>
+    <tr>
+        <td><img src="https://i.pinimg.com/736x/e2/f2/1e/e2f21e3824e44d57135ad636720bf565.jpg" alt="drawing" width="250"/></td>
+        <td><img src="https://i.pinimg.com/564x/ac/9c/77/ac9c77be24dcb3b3e5a3df682ff320ca.jpg" alt="drawing" width="250"/></td>
+        <td><img src="https://i.pinimg.com/564x/b0/22/b2/b022b28376cb8210c5a14a6af80875e5.jpg" alt="drawing" width="250"/></td>
+        <td><img src="https://i.pinimg.com/564x/02/32/d5/0232d52cea01ca0f2f59f96566244fa1.jpg" alt="drawing" width="250"/></td>
+    </tr>
+</table>
 
-### Main Screen
-![Alt text](https://i.pinimg.com/564x/b0/22/b2/b022b28376cb8210c5a14a6af80875e5.jpg "Optional title")
-
-### Add Project Screen
-![Alt text](https://i.pinimg.com/564x/02/32/d5/0232d52cea01ca0f2f59f96566244fa1.jpg "Optional title")
-
-### Add Task Screen
-![Alt text](https://i.pinimg.com/564x/00/06/1c/00061c52aa87577badaf08d7a863d1dd.jpg "Optional title")
-
-### Task Screen
-![Alt text](https://i.pinimg.com/564x/51/07/ef/5107efe35277159309788e1ff596a81c.jpg "Optional title")
-
-### Archive Screen
-![Alt text](https://i.pinimg.com/564x/a3/93/86/a393867b87eae3a15c83eff771c40964.jpg "Optional title")
-
-### Trash Screen
-![Alt text](https://i.pinimg.com/564x/33/c4/43/33c443e1880f6c78e7ccd98f4b5acb6f.jpg "Optional title")
+<table>
+    <tr>
+        <td><b><p align="center">Task Screen<p></b></td>
+        <td><b><p align="center">Add Task Screen</b><p></td>
+        <td><b><p align="center">Archive Screen<p></b></td>
+        <td><b><p align="center">Trash Screen<p></b></td>
+    </tr>
+    <tr>
+        <td><img src="https://i.pinimg.com/564x/51/07/ef/5107efe35277159309788e1ff596a81c.jpg" alt="drawing" width="250"/></td>
+        <td><img src="https://i.pinimg.com/564x/00/06/1c/00061c52aa87577badaf08d7a863d1dd.jpg" alt="drawing" width="250"/></td>
+        <td><img src="https://i.pinimg.com/564x/a3/93/86/a393867b87eae3a15c83eff771c40964.jpg" alt="drawing" width="250"/></td>
+        <td><img src="https://i.pinimg.com/564x/33/c4/43/33c443e1880f6c78e7ccd98f4b5acb6f.jpg" alt="drawing" width="250"/></td>
+    </tr>
+</table>
 
 ## Android Libraries : 
-    implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
     def room_version = "2.4.2"
     def lifecycle_version = "2.4.0"
 
-
+    implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
     implementation "androidx.fragment:fragment-ktx:1.2.5"
 
     implementation "androidx.navigation:navigation-compose:2.4.2"
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    
     // To use constraintlayout in compose
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
+    
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
