@@ -26,7 +26,7 @@ class TaskViewModel @Inject constructor(private val taskRepository: TaskReposito
     private val db = Firebase.firestore
     val auth = Firebase.auth
     // Đối tượng collection reference kết nối đến collection tương ứng trên Firestore
-    val collRef = db.collection("task")
+    val collRef = db.collection("tasks")
 
     private val _taskList = MutableStateFlow<List<Task>>(emptyList())
     private val _todoTaskList = MutableStateFlow<List<Task>>(emptyList())
@@ -39,9 +39,6 @@ class TaskViewModel @Inject constructor(private val taskRepository: TaskReposito
     val doneTaskList = _doneTaskList.asStateFlow()
 
     init {
-        refresh()
-    }
-    fun refresh(){
         viewModelScope.launch(Dispatchers.IO) {
             taskRepository.getAllTasks().distinctUntilChanged()
                 .collect {
