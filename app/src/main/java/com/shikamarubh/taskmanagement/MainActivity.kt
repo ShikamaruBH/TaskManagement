@@ -1,7 +1,9 @@
 package com.shikamarubh.taskmanagement
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -142,7 +145,7 @@ fun app(
     ) {
         val projectViewModel = viewModel<ProjectViewModel>()
         val taskViewModel = viewModel<TaskViewModel>()
-        syncDatabase(projectViewModel,taskViewModel)
+        syncDatabase(LocalContext.current,projectViewModel,taskViewModel)
         Navigation(
             navController = navController,
             taskViewModel = taskViewModel,
@@ -152,10 +155,12 @@ fun app(
         )
     }
 }
-
 // Đọc dữ liệu người dùng từ firestore và kiểm tra đã có trong máy chưa
-fun syncDatabase(projectViewModel: ProjectViewModel, taskViewModel: TaskViewModel) {
+fun syncDatabase(context:Context,projectViewModel: ProjectViewModel, taskViewModel: TaskViewModel) {
     // Gọi refresh để cập nhật lại userId và các danh sách project sau khi người dùng mới đăng nhập vào
+
+    var projectCount = 0
+    var taskCount = 0
     projectViewModel.refresh()
     // Đọc các project có userId là Id của user đang đăng nhập
     projectViewModel.collRef
@@ -163,11 +168,12 @@ fun syncDatabase(projectViewModel: ProjectViewModel, taskViewModel: TaskViewMode
         .get()
         .addOnSuccessListener {
             result ->
-            for (doc in result) {
+            run { for (doc in result) {
                 val project = doc.toObject<Project>()
                 // Kiểm tra nếu chưa có trong CSDL trong máy thì lưu vào máy
                 if (!projectViewModel.userProjects.value.contains(project)) {
                     projectViewModel.addProject(project)
+                    projectCount ++ ;
                     Log.d("DEBUG", "Add project ${project.id} to local db")
                 } else {
                     Log.d("DEBUG", "Project ${project.id} already in db")
@@ -181,15 +187,26 @@ fun syncDatabase(projectViewModel: ProjectViewModel, taskViewModel: TaskViewMode
                             // Kiểm tra nếu chưa có trong CSDL trong máy thì lưu vào máy
                             if (!taskViewModel.taskList.value.contains(task)) {
                                 taskViewModel.addTask(task)
+                                taskCount ++ ;
                                 Log.d("DEBUG", "Add task ${task.id} to local db")
                             } else {
                                 Log.d("DEBUG", "Task ${task.id} already in db")
                             }
                         }
+
                     }
-                }
-             }
+                    .addOnCompleteListener{
+                        Toast
+                            .makeText(
+                                context,
+                                "Đã đọc $projectCount Project và $taskCount Task từ Firebase",
+                                Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                 }
+            }
         }
+}
 
 
 
@@ -349,6 +366,7 @@ fun TopAppBar(topBarTitle: MutableState<String>) {
 
 @Composable
 fun loginScreen(isLoggedIn: MutableState<Boolean>) {
+    var context = LocalContext.current
     val email = remember {
         mutableStateOf("")
     }
@@ -391,12 +409,29 @@ fun loginScreen(isLoggedIn: MutableState<Boolean>) {
                             if (task.isSuccessful) {
                                 isLoggedIn.value = true
                                 Log.d("DEBUG", "Create new user successful")
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Đăng ký thành công",
+                                        Toast.LENGTH_SHORT)
+                                    .show()
                             }
-                            else
+                            else {
                                 Log.d("DEBUG", "Create new user fail")
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Đăng ký thất bại",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
                         }
+
                     }
-                },
+
+                }
+                ,
                 content = { Text(
                     text = "Đăng ký",
                     fontWeight = FontWeight.Bold
@@ -418,9 +453,24 @@ fun loginScreen(isLoggedIn: MutableState<Boolean>) {
                         if (task.isSuccessful) {
                             isLoggedIn.value = true
                             Log.d("DEBUG", "Logging successful")
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Đăng nhập thành công",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
                         }
-                        else
+                        else{
                             Log.d("DEBUG", "Logging fail")
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Đăng nhập thất bại",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        }
                     }
                 },
                 content = { Text(
